@@ -85,6 +85,27 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Force Process Next Batch
+    $(document).on('click', '#ajs-force-batch', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const originalText = $btn.text();
+        $btn.prop('disabled', true).text('Processing...');
+
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_force_batch',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            $btn.prop('disabled', false).text(originalText);
+            if (response.success) {
+                showToast('Batch processed successfully!', 'success');
+                pollLogs(); // Update the UI immediately
+            } else {
+                showToast('Error: ' + response.data, 'error');
+            }
+        });
+    });
+
     // Check for Updates Manual Trigger
     $('#ajs-check-updates').on('click', function(e) {
         e.preventDefault();

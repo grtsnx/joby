@@ -134,3 +134,10 @@ register_activation_hook(__FILE__, function () {
         update_option('ajs_countries', $defaults);
     }
 });
+
+// Deactivation hook: Clean up cron events and reset state
+register_deactivation_hook(__FILE__, function () {
+    wp_clear_scheduled_hook('ajs_daily_sync_event');
+    wp_clear_scheduled_hook('ajs_process_queue_event');
+    update_option('ajs_sync_status', 'idle');
+});

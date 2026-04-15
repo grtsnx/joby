@@ -70,7 +70,7 @@ class Joby_Sync_Engine {
         }
     }
 
-    public function process_queue() {
+    public function process_queue( $is_manual = false ) {
         $status = get_option('ajs_sync_status');
         if ($status !== 'in_progress') return;
 
@@ -119,8 +119,10 @@ class Joby_Sync_Engine {
 
         if ( ! empty( $queue ) ) {
             // Respect rate limits: 3s for Adzuna, 1s for others
-            $wait = ($provider_slug === 'adzuna') ? 3 : 1;
-            wp_schedule_single_event( time() + $wait, 'ajs_process_queue_event' );
+            if ( ! $is_manual ) {
+                $wait = ( $provider_slug === 'adzuna' ) ? 3 : 1;
+                wp_schedule_single_event( time() + $wait, 'ajs_process_queue_event' );
+            }
         } else {
             $this->complete_sync();
         }
@@ -215,6 +217,7 @@ class Joby_Sync_Engine {
         }
 
         update_option( 'ajs_sync_status', 'completed' );
+        wp_clear_scheduled_hook( 'ajs_process_queue_event' );
         update_option( 'ajs_last_sync_completed', time() );
         $this->log_activity('Sync completed successfully. Database cleaned.');
     }
@@ -224,7 +227,7 @@ class Joby_Sync_Engine {
         if ( ! is_array( $logs ) ) $logs = array();
         
         $logs[] = array(
-            'time' => date( 'H:i:s' ),
+            'time' => current_time( 'H:i:s' ),
             'msg'  => $message
         );
         
@@ -241,7 +244,7 @@ class Joby_Sync_Engine {
             'total_jobs' => wp_count_posts( 'ajs_job' )->publish,
             'countries'  => count( get_option( 'ajs_countries', array() ) ),
             'last_sync'  => get_option( 'ajs_last_sync_completed' ),
-            'provider'   => get_option( 'ajs_ajs_provider', 'Arbeitnow' )
+            'provider'   => get_option( 'ajs_provider', 'Arbeitnow' )
         );
         return $stats;
     }
