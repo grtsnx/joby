@@ -64,7 +64,7 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.sync_code.outputs.version }} [skip ci]"
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Create Git Tag
         if: steps.sync_code.outputs.changed == 'true'
@@ -72,7 +72,7 @@ jobs:
           git tag ${{ steps.sync_code.outputs.tag }}
           git push origin ${{ steps.sync_code.outputs.tag }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Create Package
         run: |
