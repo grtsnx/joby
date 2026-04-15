@@ -77,7 +77,8 @@ class Joby_Provider_Adzuna implements Joby_Provider_Interface {
                 'company'     => $result->company->display_name ?? '',
                 'location'    => $result->location->display_name ?? '',
                 'url'         => $result->redirect_url,
-                'type'        => $result->contract_type ?? 'Full Time',
+                'type'        => $result->contract_time ?? 'full_time',
+                'category'    => $result->category->label ?? '',
                 'salary'      => $result->salary_min ?? '',
             );
         }
