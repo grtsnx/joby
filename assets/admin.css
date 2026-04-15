@@ -8,7 +8,10 @@
     --ajs-text: #1D1D1F;
     --ajs-text-secondary: #86868B;
     --ajs-radius: 12px;
+    --ajs-radius-sm: 8px;
     --ajs-shadow: 0 4px 12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    --ajs-border: #E5E5E7;
+    --ajs-input-bg: #FAFAFB;
 }
 
 .ajs-admin-wrap {
@@ -110,16 +113,44 @@
     color: var(--ajs-text-secondary);
 }
 
-.regular-text {
-    border-radius: 8px !important;
-    border: 1px solid #D2D2D7 !important;
-    padding: 8px 12px !important;
-    transition: border-color 0.2s ease;
+/* Form & Input Styling */
+.ajs-admin-wrap input[type="text"],
+.ajs-admin-wrap input[type="password"],
+.ajs-admin-wrap input[type="number"],
+.ajs-admin-wrap select {
+    border-radius: var(--ajs-radius-sm) !important;
+    border: 1.5px solid var(--ajs-border) !important;
+    background-color: var(--ajs-input-bg) !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    color: var(--ajs-text) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+    width: 100%;
+    max-width: 400px;
 }
 
-.regular-text:focus {
+.ajs-admin-wrap input:focus,
+.ajs-admin-wrap select:focus {
+    background-color: #FFFFFF !important;
     border-color: var(--ajs-accent) !important;
-    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12) !important;
+}
+
+.ajs-admin-wrap select {
+    cursor: pointer;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2386868B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px top 50% !important;
+    background-size: 10px auto !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    padding-right: 40px !important;
+}
+
+.ajs-country-selector {
+    max-width: 100% !important;
 }
 
 /* Country Table */
@@ -234,6 +265,62 @@
     color: var(--ajs-accent);
     margin-bottom: 15px;
     display: inline-block;
+}
+
+.ajs-log-toggle:hover { color: var(--ajs-accent); }
+
+/* Modal Styling */
+.ajs-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.ajs-modal-content {
+    background: var(--ajs-card-bg);
+    border-radius: var(--ajs-radius);
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+}
+
+.ajs-modal-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--ajs-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ajs-modal-header h3 { margin: 0 !important; border: none !important; padding: 0 !important; font-size: 18px !important; }
+
+.ajs-modal-close {
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--ajs-text-secondary);
+}
+
+.ajs-modal-body {
+    padding: 30px;
+    overflow-y: auto;
+}
+
+#ajs-raw-json {
+    background: var(--ajs-input-bg);
+    padding: 20px;
+    border-radius: var(--ajs-radius-sm);
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 @media (max-width: 1200px) {
