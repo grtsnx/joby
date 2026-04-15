@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Joby Sync
  * Description: Dynamically fetch and sync jobs from a remote API across multiple countries.
- * Version: 3.1.0
+ * Version: 3.6.0
  * Author: Abolade Greatness
  * Author URI: https://github.com/grtsnx/joby
  * License: GPL-2.0+
@@ -14,7 +14,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Define constants
-define('JOBY_VERSION', '3.1.0');
+define('JOBY_VERSION', '3.6.0');
 define('JOBY_PATH', plugin_dir_path(__FILE__));
 define('JOBY_URL', plugin_dir_url(__FILE__));
 
