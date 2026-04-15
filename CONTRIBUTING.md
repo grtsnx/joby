@@ -1,91 +1,56 @@
-# Contributing to Joby Sync
+# 🌟 How to Help with Joby Sync
 
-First off, thanks for taking the time to contribute! ❤️
+Thank you for helping! We love your help. ❤️ 
 
-All types of contributions are encouraged and valued. This document provides guidelines for how you can help, whether you are reporting a bug, suggesting a new feature, or submitting code changes.
-
-## Table of Contents
-
-- [Code of Conduct](#code-of-conduct)
-- [How to Contribute](#how-to-contribute)
-- [Commit & Versioning Convention](#commit--versioning-convention)
-- [Labels Guide](#labels-guide)
-- [Design Standards](#design-standards)
-- [Coding Standards](#coding-standards)
+Keeping the project clean is easy. Just follow these simple rules!
 
 ---
 
-## Code of Conduct
+## 🏗️ 1. How to add your code
+1.  **Fork** this project to your own account.
+2.  **Create a branch** for your work (e.g., `git checkout -b my-new-feature`).
+3.  **Do your work** and test it.
+4.  **Send a Pull Request** (PR) to our `dev` branch.
 
-By participating in this project, you are expected to uphold our [Code of Conduct](CODE_OF_CONDUCT.md).
+---
 
-## How to Contribute
+## 🏷️ 2. The "Magic Prefixes" for your Work
+To help our robot create a new version automatically, always start your PR titles with one of these magic words:
 
-### Reporting Bugs
-If you find a bug, please use our **Bug Report** template when opening an issue. Include:
-- WordPress version
-- PHP version
-- Steps to reproduce
-
-### Suggesting Enhancements
-We welcome suggestions! Please use our **Feature Request** template to describe the problem you want to solve and your proposed solution.
-
-### Code Contributions
-1. **Fork** the repository.
-2. **Create a branch** for your feature or fix: `git checkout -b feature/my-new-feature`.
-3. **Make your changes**, ensuring you follow our [Coding Standards](#coding-standards).
-4. **Test your changes** locally.
-5. **Commit your changes**: `git commit -m "feat: add my new feature"`.
-6. **Push** to your fork and submit a **Pull Request** against the `dev` branch.
-
-## 🏷️ Commit & Versioning Convention
-
-This project uses **Semantic Versioning** and automated releases. To ensure your changes are categorized correctly and trigger the right version bump, please prefix your pull request titles and commits using the following convention:
-
-- **`feat:`**: A new feature (triggers a **Minor** version bump, e.g., 1.0.0 -> 1.1.0)
-- **`fix:`**: A bug fix (triggers a **Patch** version bump, e.g., 1.0.0 -> 1.0.1)
-- **`docs:`**: Documentation changes
-- **`style:`**: Changes that do not affect the meaning of the code
-- **`refactor:`**: A code change that neither fixes a bug nor adds a feature
-- **`perf:`**: A code change that improves performance
-- **`test:`**: Adding missing tests
-- **`chore:`**: Changes to the build process or auxiliary tools
-
-### Breaking Changes
-Include `BREAKING CHANGE:` in the commit body or a `!` after the type (e.g., `feat!: ...`). This triggers a **Major** version bump (e.g., 1.0.0 -> 2.0.0).
-
-## 🗂️ Labels Guide
-
-When opening a Pull Request, please apply the appropriate labels. Labels drive the **Automated Release Notes** categorization:
-
-| Label | Description | Release Category |
+| Magic Word | What it means | What happens |
 | :--- | :--- | :--- |
-| `feature` / `enhancement` | New functionality or improvements | 🚀 Features |
-| `bug` / `fix` | Correcting a problem in the code | 🐛 Fixes |
-| `ui` | Changes to the look and feel | 🏠 Improvements |
-| `improvement` / `refactor` | Code quality or performance | 🏠 Improvements |
-| `dependencies` | Updating external libraries | 📦 Dependencies |
-| `documentation` | README or wiki updates | 📖 Documentation |
-| `security` | Critical security fixes | 🐛 Fixes (High Priority) |
-| `maintenance` / `chore` | Build tasks or project health | 🏠 Maintenance |
-
-## 🖤 Design Standards (Monochrome & Brutalist)
-
-Joby Sync follows a high-contrast, **Monochrome Brutalist** aesthetic. If you are adding new UI elements to the WordPress admin:
-
-- **Colors**: Use only Black (#000) and White (#FFF). Avoid grays unless absolutely necessary for disabled states.
-- **Corners**: Use sharp corners (0px border-radius) for a distinct "raw" look.
-- **Shadows**: Use heavy, solid monochrome shadows (e.g., `box-shadow: 10px 10px 0px #000;`) instead of soft blurs.
-- **Typography**: Use bold, uppercase headers for section titles.
-
-## Coding Standards
-
-To maintain consistency and code quality, please adhere to the following:
-
-- **WordPress Coding Standards**: We follow the [official WordPress Coding Standards](https://make.wordpress.org/core/handbook/best-practices/coding-standards/).
-- **Security**: All inputs must be sanitized, and all outputs must be escaped using WordPress security functions (e.g., `sanitize_text_field()`, `esc_html()`).
-- **Documentation**: Please ensure your code follows standard PHP docblock practices.
+| **`feat:`** | You added a **New Feature** | Version goes up (e.g., 1.0.0 → 1.1.0) 🚀 |
+| **`fix:`** | You fixed a **Bug** | Version goes up a tiny bit (1.0.0 → 1.0.1) 🐛 |
+| **`docs:`** | You fixed **Documentation** | No new version (just updates the site) 📖 |
+| **`chore:`** | Small cleanup | No new version 🏠 |
 
 ---
 
-*If you like the project but don't have time to contribute code, starring the repository is a great way to help!*
+## 🗂️ 3. Using Labels for Pretty Release Notes
+When you open a PR, please add one of these **Labels**. This tells our robot where to put your name on the "Release Page":
+
+- **Feature label** → Your changes appear under **🚀 Features**
+- **Bug label** → Your changes appear under **🐛 Fixes**
+- **UI label** → Your changes appear under **🏠 Improvements**
+- **Documentation label** → Your changes appear under **📖 Documentation**
+
+---
+
+## 🖤 4. How it should look (Design Rules)
+Joby Sync is **Monochrome** (only Black and White). 
+- ⬛ **Black** and ⬜ **White** only. No grays!
+- 📐 **Sharp Corners**: No rounded edges.
+- 🌑 **Heavy Shadows**: Use thick black shadows for boxes.
+- 🔠 **LOUD HEADERS**: Use big, bold, uppercase letters for titles.
+
+---
+
+## 🔒 5. Coding Rules (Keep it safe!)
+- **WordPress Rules**: Follow the standard WordPress way of coding.
+- **Security**: Always clean your data! Use `sanitize_text_field()` and `esc_html()`.
+- **Comments**: Explain what your code does so others can understand!
+
+---
+
+### That's it! 🥳
+If you follow these steps, the robots will handle all the hard work (versioning and release notes) and you will look like a pro!
