@@ -4,7 +4,8 @@
  * Plugin Name: Joby Sync
  * Description: Dynamically fetch and sync jobs from a remote API across multiple countries.
  * Version: 1.0.0
- * Author: Antigravity
+ * Author: Abolade Greatness
+ * Author URI: https://github.com/grtsnx/joby
  * License: GPL-2.0+
  */
 
