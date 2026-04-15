@@ -1,23 +1,31 @@
 changelog:
+  categories:
+    - title: '🚀 Features'
+      labels:
+        - 'feature'
+        - 'enhancement'
+    - title: '🐛 Fixes'
+      labels:
+        - 'bug'
+        - 'fix'
+        - 'security'
+    - title: '🏠 Improvements'
+      labels:
+        - 'improvement'
+        - 'refactor'
+        - 'ui'
+    - title: '📦 Dependencies'
+      labels:
+        - 'dependencies'
+    - title: '📖 Documentation'
+      labels:
+        - 'documentation'
+    - title: '🏠 Maintenance'
+      labels:
+        - 'chore'
+        - 'maintenance'
   exclude:
     labels:
-      - ignore-for-release
+      - 'ignore'
     authors:
-      - octocat
-  categories:
-    - title: "🚀 Features"
-      labels:
-        - enhancement
-        - feat
-    - title: "🐛 Bug Fixes"
-      labels:
-        - bug
-        - fix
-    - title: "🏠 Maintenance"
-      labels:
-        - chore
-        - build
-        - documentation
-    - title: "⚠️ Security"
-      labels:
-        - security
+      - 'octocat'

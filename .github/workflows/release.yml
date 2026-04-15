@@ -17,69 +17,82 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history and tags
+          fetch-depth: 0
 
-      - name: Extract Plugin Version
-        id: vars
-        run: |
-          # Extract the version number from the plugin header
-          VERSION=$(grep "Version:" joby-sync.php | awk '{print $NF}')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-          echo "Detected Version: $VERSION"
+      - name: Determine Next Version
+        id: tag_action
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
+          DRY_RUN: true # We only want to calculate the version here
 
-      - name: Check if Tag Exists
-        id: check_tag
+      - name: Sync Version to Code
+        id: sync_code
         run: |
-          TAG="v${{ steps.vars.outputs.version }}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists. Skipping release."
+          NEW_TAG="${{ steps.tag_action.outputs.new_tag }}"
+          NEW_VERSION="${{ steps.tag_action.outputs.new_version }}"
+          
+          echo "Updating code to version $NEW_VERSION"
+          
+          # Update Version: in plugin header
+          sed -i "s/Version:.*/Version: $NEW_VERSION/" joby-sync.php
+          
+          # Update JOBY_VERSION constant
+          sed -i "s/define('JOBY_VERSION', '.*');/define('JOBY_VERSION', '$NEW_VERSION');/" joby-sync.php
+          
+          # Check if changes exist
+          if git diff --quiet; then
+            echo "No version changes needed in code."
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Version updated in code."
+            echo "changed=true" >> $GITHUB_OUTPUT
           fi
+          echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push Version Bump
+        if: steps.sync_code.outputs.changed == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add joby-sync.php
+          git commit -m "chore: bump version to ${{ steps.sync_code.outputs.version }} [skip ci]"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Git Tag
+        if: steps.sync_code.outputs.changed == 'true'
+        run: |
+          git tag ${{ steps.sync_code.outputs.tag }}
+          git push origin ${{ steps.sync_code.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Package
-        if: steps.check_tag.outputs.exists == 'false'
         run: |
-          # 1. Create a clean staging directory
           STAGING_DIR="joby-sync-staging"
           mkdir -p $STAGING_DIR/joby-sync
-          
-          # 2. Copy essential files
           cp -r includes $STAGING_DIR/joby-sync/
           cp -r assets $STAGING_DIR/joby-sync/
           cp joby-sync.php $STAGING_DIR/joby-sync/
-          
-          # 3. Zip from the staging directory to the workspace root
           cd $STAGING_DIR
           zip -r ../joby-sync.zip joby-sync/
           cd ..
-          
-          # 4. Verify the file exists
-          if [ -f "joby-sync.zip" ]; then
-            echo "✅ Package created successfully: $(ls -lh joby-sync.zip)"
-          else
-            echo "❌ Failed to create package!"
-            exit 1
-          fi
 
-      - name: Create GitHub Release via CLI
-        if: steps.check_tag.outputs.exists == 'false'
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${{ steps.vars.outputs.tag }}"
-          TITLE="Joby $TAG (${{ steps.vars.outputs.date }})"
-          
-          echo "🚀 Creating Release: $TITLE"
-          
+          TAG="${{ steps.sync_code.outputs.tag }}"
           # Use official GitHub CLI (gh) to create the release and upload the asset
           gh release create "$TAG" \
             joby-sync.zip \
-            --title "$TITLE" \
+            --title "Joby $TAG ($(date +'%Y-%m-%d'))" \
             --generate-notes \
             --latest
