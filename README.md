@@ -10,8 +10,10 @@
 - **🌍 Multi-Provider Engine**: Support for **Adzuna** (US/UK/EU) and **Arbeitnow** (Global Remote).
 - **🇳🇬 Nigeria Ready**: **Arbeitnow** integration provides instant access to global remote jobs for the Nigerian market with **zero-configuration**.
 - **⚡ Automated Workflow**: New "Auto-Sync on Save" checkbox for hands-off updates.
+- **🔍 Deep Diagnostics**: New "View Raw Data" modal with real-time internal state and last API response logging.
+- **🚀 Manual Step Mode**: "Force Process Next Batch" button to bypass WP-Cron limitations and push tasks manually.
 - **🔔 Real-time UX**: Sliding "Toast" notifications and deep progress tracking.
-- **🛑 Total Control**: Instant "Cancel Sync" functionality to stop active tasks.
+- **🛑 Total Control**: Instant "Cancel Sync" functionality that wipes background schedules.
 
 ---
 
@@ -54,6 +56,16 @@
 
 **Meta Fields**: 
 `_ajs_remote_id`, `_ajs_location`, `_ajs_company`, `_ajs_url`, `_ajs_type`, `_ajs_salary`.
+
+---
+
+## 🛠️ Troubleshooting
+
+### Progress Bar Is Stuck?
+If your sync progress isn't moving, it is likely because **WP-Cron** is not triggering on your server.
+1. Open the **"View Raw Data"** link in the Sync Activity Logs card.
+2. Click the **"Force Process Next Batch"** button.
+3. This will manually push the next 5 tasks and bypass the cron system. Each click will move the progress bar.
 
 ---
 

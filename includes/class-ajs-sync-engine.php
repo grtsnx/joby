@@ -227,7 +227,7 @@ class Joby_Sync_Engine {
         if ( ! is_array( $logs ) ) $logs = array();
         
         $logs[] = array(
-            'time' => date( 'H:i:s' ),
+            'time' => current_time( 'H:i:s' ),
             'msg'  => $message
         );
         
@@ -244,7 +244,7 @@ class Joby_Sync_Engine {
             'total_jobs' => wp_count_posts( 'ajs_job' )->publish,
             'countries'  => count( get_option( 'ajs_countries', array() ) ),
             'last_sync'  => get_option( 'ajs_last_sync_completed' ),
-            'provider'   => get_option( 'ajs_ajs_provider', 'Arbeitnow' )
+            'provider'   => get_option( 'ajs_provider', 'Arbeitnow' )
         );
         return $stats;
     }
