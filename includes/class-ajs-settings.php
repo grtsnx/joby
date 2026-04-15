@@ -102,6 +102,7 @@ class Joby_Settings {
                 <a href="<?php echo admin_url('edit.php?post_type=ajs_job'); ?>" class="button button-primary">View Synced Jobs</a>
                 <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
                 <button type="button" id="ajs-clear-cache" class="button button-secondary">Clear Cache</button>
+                <button type="button" id="ajs-how-to-use" class="button button-secondary" style="background: #e7f1ff; color: #0073aa; border-color: #0073aa;">📖 How to Use</button>
                 <button type="button" id="ajs-purge-jobs" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Purge All Jobs</button>
             </div>
             
@@ -313,6 +314,60 @@ class Joby_Settings {
             <div class="ajs-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E5E5; color: #86868B; font-size: 13px; display: flex; justify-content: space-between;">
                 <span>&copy; <?php echo date('Y'); ?> Joby Sync by Abolade Greatness. All rights reserved.</span>
                 <span>Version <?php echo JOBY_VERSION; ?></span>
+            </div>
+        </div>
+
+        <!-- How to Use Modal -->
+        <div id="ajs-guide-modal" class="ajs-modal" style="display:none;">
+            <div class="ajs-modal-content">
+                <div class="ajs-modal-header">
+                    <h2>📖 Developer Guide: Using Joby Jobs</h2>
+                    <span class="ajs-close-modal">&times;</span>
+                </div>
+                <div class="ajs-modal-body">
+                    <section>
+                        <h3>1. Querying Jobs in Templates</h3>
+                        <p>Use the following snippet in your theme files (e.g., <code>archive.php</code> or <code>single-ajs_job.php</code>):</p>
+                        <pre><code>$args = array(
+    'post_type' => 'ajs_job',
+    'posts_per_page' => 10,
+    'tax_query' => array(
+        array(
+            'taxonomy' => 'ajs_country',
+            'field'    => 'slug',
+            'terms'    => 'us', // Slug of the country
+        ),
+    ),
+);
+$query = new WP_Query($args);</code></pre>
+                    </section>
+
+                    <section>
+                        <h3>2. Displaying Metadata</h3>
+                        <p>Available Post Meta keys for each job:</p>
+                        <table class="ajs-guide-table">
+                            <thead>
+                                <tr><th>Feature</th><th>Meta Key</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>🏢 Company</td><td><code>_ajs_company</code></td><td>Name of the hiring company</td></tr>
+                                <tr><td>📍 Location</td><td><code>_ajs_location_name</code></td><td>City/State description</td></tr>
+                                <tr><td>💰 Salary</td><td><code>_ajs_salary</code></td><td>Formatted salary string</td></tr>
+                                <tr><td>🔗 Apply URL</td><td><code>_ajs_apply_url</code></td><td>Direct link to the job ad</td></tr>
+                                <tr><td>🆔 Remote ID</td><td><code>_ajs_remote_id</code></td><td>Unique ID from the provider</td></tr>
+                                <tr><td>🤖 Provider</td><td><code>_ajs_provider</code></td><td>Origin (e.g., adzuna)</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h3>3. Displaying Job Details</h3>
+                        <pre><code>&lt;h2&gt;&lt;?php the_title(); ?&gt;&lt;/h2&gt;
+&lt;p&gt;Company: &lt;?php echo get_post_meta(get_the_ID(), '_ajs_company', true); ?&gt;&lt;/p&gt;
+&lt;p&gt;Location: &lt;?php echo get_post_meta(get_the_ID(), '_ajs_location_name', true); ?&gt;&lt;/p&gt;
+&lt;a href="&lt;?php echo get_post_meta(get_the_ID(), '_ajs_apply_url', true); ?&gt;" target="_blank"&gt;Apply Now&lt;/a&gt;</code></pre>
+                    </section>
+                </div>
             </div>
         </div>
 

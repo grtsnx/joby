@@ -291,6 +291,20 @@ jQuery(document).ready(function($) {
         return Math.floor(hours / 24) + 'd ago';
     }
 
+    // How to Use Modal
+    $('#ajs-how-to-use').on('click', function() {
+        $('#ajs-guide-modal').fadeIn(200);
+    });
+
+    $('.ajs-close-modal, #ajs-guide-modal').on('click', function(e) {
+        if (e.target !== this && !$(e.target).hasClass('ajs-close-modal')) return;
+        $('#ajs-guide-modal').fadeOut(200);
+    });
+
+    $(document).on('keydown', function(e) {
+        if (e.key === "Escape") $('#ajs-guide-modal').fadeOut(200);
+    });
+
     $('#ajs-toggle-logs').on('click', function() {
         const $console = $('#ajs-log-console');
         if ($console.is(':visible')) {
