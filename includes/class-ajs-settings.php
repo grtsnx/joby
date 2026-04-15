@@ -17,6 +17,7 @@ class Joby_Settings {
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+        add_action( 'admin_head', array( $this, 'fix_menu_icon_size' ) );
         add_action( 'wp_ajax_ajs_trigger_sync', array( $this, 'handle_trigger_sync' ) );
     }
 
@@ -158,5 +159,20 @@ class Joby_Settings {
 
         Joby_Sync_Engine::get_instance()->start_sync();
         wp_send_json_success( 'Sync started' );
+    }
+
+    /**
+     * Fix for HUGE menu icon size in sidebar
+     */
+    public function fix_menu_icon_size() {
+        ?>
+        <style>
+            #toplevel_page_joby-sync .wp-menu-image img {
+                width: 20px !important;
+                height: auto !important;
+                padding-top: 7px !important;
+            }
+        </style>
+        <?php
     }
 }
