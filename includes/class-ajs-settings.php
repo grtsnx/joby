@@ -22,6 +22,7 @@ class Joby_Settings {
         add_action( 'wp_ajax_ajs_cancel_sync', array( $this, 'handle_cancel_sync' ) );
         add_action( 'wp_ajax_ajs_check_updates', array( $this, 'handle_check_updates' ) );
         add_action( 'wp_ajax_ajs_get_logs', array( $this, 'handle_get_logs' ) );
+        add_action( 'wp_ajax_ajs_clear_cache', array( $this, 'handle_clear_cache' ) );
     }
 
     public function add_menu() {
@@ -85,9 +86,10 @@ class Joby_Settings {
                 <h1>Joby Sync Settings</h1>
             </div>
 
-            <div class="ajs-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+            <div class="ajs-actions" style="margin-top: 20px; margin-bottom: 30px; display: flex; gap: 10px;">
                 <a href="<?php echo admin_url('edit.php?post_type=ajs_job'); ?>" class="button button-primary">View Synced Jobs</a>
                 <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
+                <button type="button" id="ajs-clear-cache" class="button button-secondary">Clear Cache</button>
             </div>
             
             <div class="ajs-dashboard-grid">
@@ -244,6 +246,11 @@ class Joby_Settings {
                     </div>
                 </div> <!-- .ajs-grid-right -->
             </div> <!-- .ajs-main-grid -->
+
+            <div class="ajs-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E5E5; color: #86868B; font-size: 13px; display: flex; justify-content: space-between;">
+                <span>&copy; <?php echo date('Y'); ?> Joby Sync by Abolade Greatness. All rights reserved.</span>
+                <span>Version <?php echo JOBY_VERSION; ?></span>
+            </div>
         </div>
 
         <script id="ajs-row-template" type="text/template">
@@ -310,6 +317,17 @@ class Joby_Settings {
             'status' => get_option( 'ajs_sync_status', 'idle' ),
             'queue'  => count( get_option( 'ajs_sync_queue', array() ) )
         ) );
+    }
+
+    public function handle_clear_cache() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        delete_site_transient( 'ajs_sync_logs' );
+        delete_site_transient( 'joby_update_check' );
+        delete_site_transient( 'update_plugins' );
+        
+        wp_send_json_success( 'All plugin caches and transients have been cleared.' );
     }
 
     public function fix_menu_icon_size() {
