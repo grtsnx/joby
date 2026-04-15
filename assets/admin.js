@@ -11,6 +11,30 @@ jQuery(document).ready(function($) {
         }, 3000);
     }
 
+    // Provider Compatibility Checking
+    function checkCompatibility() {
+        const provider = $('#ajs_provider_select').val();
+        const supported = ajs_vars.compatibility[provider] || [];
+        let hasMismatch = false;
+
+        $('.ajs-country-select').each(function() {
+            const countryCode = $(this).val();
+            if (provider !== 'arbeitnow' && !supported.includes(countryCode)) {
+                $(this).css('border-color', '#ff3b30');
+                hasMismatch = true;
+            } else {
+                $(this).css('border-color', '');
+            }
+        });
+
+        if (hasMismatch) {
+            $('#ajs-warning-provider-name').text(provider.charAt(0).toUpperCase() + provider.slice(1));
+            $('#ajs-country-warning').slideDown();
+        } else {
+            $('#ajs-country-warning').slideUp();
+        }
+    }
+
     // Dynamic Provider Fields
     $('#ajs_provider_select').on('change', function() {
         const selected = $(this).val();
@@ -21,6 +45,8 @@ jQuery(document).ready(function($) {
         if (selected === 'arbeitnow') {
             showToast('Arbeitnow selected: Public API (no keys needed)', 'success');
         }
+
+        checkCompatibility();
     });
 
     // Start Manual Sync

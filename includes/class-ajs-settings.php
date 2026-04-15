@@ -45,9 +45,16 @@ class Joby_Settings {
         wp_enqueue_style( 'ajs-admin-css', JOBY_URL . 'assets/admin.css', array(), JOBY_VERSION );
         wp_enqueue_script( 'ajs-admin-js', JOBY_URL . 'assets/admin.js', array( 'jquery' ), JOBY_VERSION, true );
         
+        $all_providers = Joby_API::get_all_providers();
+        $compatibility = array();
+        foreach ( $all_providers as $slug => $obj ) {
+            $compatibility[ $slug ] = array_keys( $obj->get_supported_countries() );
+        }
+
         wp_localize_script( 'ajs-admin-js', 'ajs_vars', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => wp_create_nonce( 'ajs_nonce' )
+            'ajax_url'      => admin_url( 'admin-ajax.php' ),
+            'nonce'         => wp_create_nonce( 'ajs_nonce' ),
+            'compatibility' => $compatibility
         ) );
     }
 
@@ -219,6 +226,12 @@ class Joby_Settings {
                                 <tr>
                                     <td colspan="3">
                                         <button type="button" id="ajs-add-country" class="button button-secondary">Add Location</button>
+                                        <div id="ajs-country-warning" class="ajs-warning-banner" style="display: none; margin-top: 15px;">
+                                            <span class="ajs-warning-icon">⚠️</span>
+                                            <div class="ajs-warning-text">
+                                                <strong>Provider Mismatch:</strong> Some locations are not supported by <span id="ajs-warning-provider-name">Adzuna</span>. These will be skipped during sync.
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tfoot>
@@ -339,7 +352,7 @@ class Joby_Settings {
             'last_sync_time'   => get_option( 'ajs_last_sync_completed' ),
             'last_error'       => get_option( 'ajs_last_sync_error' ),
             'config_countries' => get_option( 'ajs_countries' ),
-            'provider'         => get_option( 'ajs_provider' )
+            'provider'         => get_option( 'ajs_provider', 'adzuna' )
         ) );
     }
 
