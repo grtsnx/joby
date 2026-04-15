@@ -54,6 +54,15 @@ class Joby_Provider_Adzuna implements Joby_Provider_Interface {
 
         $response = wp_remote_get($url, array('timeout' => 20));
 
+        // Store diagnostic info
+        $diag = array(
+            'url'           => $url,
+            'response_code' => wp_remote_retrieve_response_code($response),
+            'message'       => wp_remote_retrieve_response_message($response),
+            'time'          => current_time('mysql')
+        );
+        set_site_transient('ajs_last_api_response', $diag, HOUR_IN_SECONDS);
+
         if (is_wp_error($response)) return $response;
         
         $body = json_decode(wp_remote_retrieve_body($response));

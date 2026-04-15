@@ -22,6 +22,7 @@ class Joby_Settings {
         add_action( 'wp_ajax_ajs_cancel_sync', array( $this, 'handle_cancel_sync' ) );
         add_action( 'wp_ajax_ajs_check_updates', array( $this, 'handle_check_updates' ) );
         add_action( 'wp_ajax_ajs_get_logs', array( $this, 'handle_get_logs' ) );
+        add_action( 'wp_ajax_ajs_force_batch', array( $this, 'handle_force_batch' ) );
         add_action( 'wp_ajax_ajs_clear_cache', array( $this, 'handle_clear_cache' ) );
         
         // Prevent duplicated footer by hiding default WP footer on this page
@@ -263,6 +264,10 @@ class Joby_Settings {
                                 <span class="ajs-modal-close">&times;</span>
                             </div>
                             <div class="ajs-modal-body">
+                                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 13px; color: var(--ajs-text-secondary);">Internal plugin state & last API response.</span>
+                                    <button type="button" class="button button-small" id="ajs-force-batch" style="background: var(--ajs-accent); color: white; border: none; padding: 5px 12px; height: auto; cursor: pointer;">Force Process Next Batch</button>
+                                </div>
                                 <pre id="ajs-raw-json"></pre>
                             </div>
                         </div>
@@ -307,6 +312,7 @@ class Joby_Settings {
         check_ajax_referer( 'ajs_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
 
+        wp_clear_scheduled_hook( 'ajs_process_queue_event' );
         Joby_Sync_Engine::get_instance()->start_sync();
         wp_send_json_success( 'Sync started' );
     }
@@ -315,7 +321,8 @@ class Joby_Settings {
         check_ajax_referer( 'ajs_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
 
-        update_option('ajs_sync_status', 'idle');
+        wp_clear_scheduled_hook( 'ajs_process_queue_event' );
+        update_option( 'ajs_sync_status', 'cancelled' );
         update_option('ajs_sync_queue', array());
         update_option('ajs_last_sync_error', 'Sync cancelled by user.');
         
@@ -352,8 +359,22 @@ class Joby_Settings {
             'last_sync_time'   => get_option( 'ajs_last_sync_completed' ),
             'last_error'       => get_option( 'ajs_last_sync_error' ),
             'config_countries' => get_option( 'ajs_countries' ),
-            'provider'         => get_option( 'ajs_provider', 'adzuna' )
+            'provider'         => get_option( 'ajs_provider', 'adzuna' ),
+            'last_api'         => get_site_transient( 'ajs_last_api_response' )
         ) );
+    }
+
+    public function handle_force_batch() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        // Cancel any pending cron schedules first
+        wp_clear_scheduled_hook( 'ajs_process_queue_event' );
+
+        $engine = Joby_Sync_Engine::get_instance();
+        $engine->process_queue( true ); // This will process one batch (5 items) and NOT reschedule
+
+        wp_send_json_success( 'Batch processed successfully and schedules cleared.' );
     }
 
     public function handle_clear_cache() {
