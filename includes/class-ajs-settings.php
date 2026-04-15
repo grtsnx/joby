@@ -15,6 +15,7 @@ class Joby_Settings {
 
     private function __construct() {
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
+        add_action( 'wp_ajax_ajs_purge_jobs', array( $this, 'handle_purge_jobs' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_head', array( $this, 'fix_menu_icon_size' ) );
@@ -101,6 +102,7 @@ class Joby_Settings {
                 <a href="<?php echo admin_url('edit.php?post_type=ajs_job'); ?>" class="button button-primary">View Synced Jobs</a>
                 <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
                 <button type="button" id="ajs-clear-cache" class="button button-secondary">Clear Cache</button>
+                <button type="button" id="ajs-purge-jobs" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Purge All Jobs</button>
             </div>
             
             <div class="ajs-dashboard-grid">
@@ -366,6 +368,14 @@ class Joby_Settings {
         }
         
         wp_send_json_success( 'Update check complete. Please refresh the page or check the Plugins menu.' );
+    }
+
+    public function handle_purge_jobs() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        Joby_Sync_Engine::purge_all_jobs();
+        wp_send_json_success( 'All jobs purged successfully.' );
     }
 
     public function handle_get_logs() {

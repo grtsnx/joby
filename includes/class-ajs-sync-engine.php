@@ -277,6 +277,27 @@ class Joby_Sync_Engine {
         set_site_transient( 'ajs_sync_logs', $logs, HOUR_IN_SECONDS );
     }
 
+    public static function purge_all_jobs() {
+        global $wpdb;
+        
+        // Use direct SQL for speed on large datasets, cleaning up both posts and meta
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE p, pm FROM {$wpdb->posts} p 
+                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+                 WHERE p.post_type = %s",
+                'ajs_job'
+            )
+        );
+
+        // Reset sync status to avoid UI confusion
+        update_option( 'ajs_sync_status', 'idle' );
+        update_option( 'ajs_sync_queue', array() );
+        delete_site_transient( 'ajs_sync_logs' );
+
+        return true;
+    }
+
     public static function get_stats() {
         $stats = array(
             'total_jobs' => wp_count_posts( 'ajs_job' )->publish,

@@ -150,6 +150,28 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Purge All Jobs
+    $('#ajs-purge-jobs').on('click', function(e) {
+        e.preventDefault();
+        if (!confirm('🛑 WARNING: This will permanently delete ALL synced jobs from your database. This cannot be undone. Are you sure?')) return;
+        
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Purging...');
+
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_purge_jobs',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            $btn.prop('disabled', false).text('Purge All Jobs');
+            if (response.success) {
+                showToast(response.data, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error: ' + response.data, 'error');
+            }
+        });
+    });
+
     // Dynamic Row Handling for Countries
     $('#ajs-add-country').on('click', function() {
         const index = $('#ajs-countries-table tbody tr').not('.empty-row').length;
