@@ -28,6 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: patch
+          MAJOR_STRING_TOKEN: "break:"
           MINOR_STRING_TOKEN: "feat:"
           PATCH_STRING_TOKEN: "fix:"
           DRY_RUN: true
@@ -42,6 +43,12 @@ jobs:
           if [ -z "$NEW_TAG" ]; then
             NEW_TAG="v1.0.0"
           fi
+          
+          # | Magic Word | What it means |
+          # | :--- | :--- |
+          # | **`break:`** | A **Major** Release (v2.0.0) 💥 |
+          # | **`feat:`** | A **New Feature** (v.X.1.0) 🚀 |
+          # | **`fix:`** | A **Bug Fix** (v.X.X.1) 🐛 |
           
           # Clean version (remove 'v')
           NEW_VERSION=$(echo $NEW_TAG | sed 's/^v//')
