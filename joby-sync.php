@@ -108,6 +108,11 @@ add_action('plugins_loaded', 'ajs_init');
 // Activation hook
 register_activation_hook(__FILE__, function () {
     update_option('ajs_do_activation_redirect', true);
+    
+    // Default to Arbeitnow for immediate global availability
+    if ( ! get_option('ajs_provider') ) {
+        update_option('ajs_provider', 'arbeitnow');
+    }
 
     // Set default countries if none exist
     if (! get_option('ajs_countries')) {

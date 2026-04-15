@@ -1,17 +1,17 @@
-# <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync for WordPress
+# <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync v2.0
 
-
-**Joby Sync** is a robust, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Built for scale, it handles rate limits and server resources efficiently using a background task queue.
+**The "Apple" Update 🍏** — A premium, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Refined for speed, beauty, and global availability.
 
 ---
 
-## 🌟 Key Features
+## 🌟 What's New in v2.0?
 
-- **🌍 Global Sync**: Connect multiple countries (NG, US, UK, etc.) in a single dashboard.
-- **⚡ Smart Queueing**: Processes jobs in batches of 50 to respect API limits and server health.
-- **🧹 Auto-Purge**: Automatically deletes expired jobs to keep your database lean.
-- **📅 Background Sync**: Fully automated daily updates powered by WP-Cron.
-- **🛠️ Flexible Config**: Admin-controlled job targets per country.
+- **🍏 Apple-Style UI**: A pure minimalist, "Clean-Light" design with a premium dark header.
+- **🌍 Multi-Provider Engine**: Support for **Adzuna** (US/UK/EU) and **Arbeitnow** (Global Remote).
+- **🇳🇬 Nigeria Ready**: **Arbeitnow** integration provides instant access to global remote jobs for the Nigerian market with **zero-configuration**.
+- **⚡ Automated Workflow**: New "Auto-Sync on Save" checkbox for hands-off updates.
+- **🔔 Real-time UX**: Sliding "Toast" notifications and deep progress tracking.
+- **🛑 Total Control**: Instant "Cancel Sync" functionality to stop active tasks.
 
 ---
 
@@ -20,7 +20,9 @@
 - **PHP**: 7.4+
 - **WordPress**: 5.0+
 - **System**: cURL enabled & WP-Cron active.
-- **API Credentials**: App ID and App Key from your provider.
+- **Providers**: 
+  - **Adzuna**: Requires API Credentials.
+  - **Arbeitnow**: **Zero-config** (Public API).
 
 ---
 
@@ -33,31 +35,31 @@
 
 ### 2. Configuration
 - Navigate to the **Joby Sync** menu.
-- Enter your **API Credentials**.
-- Add countries (e.g., `ng` for Nigeria, `us` for USA) and set your desired job counts.
+- **Choose Your Provider**: Pick "Arbeitnow" for instant global remote jobs, or "Adzuna" for local market focus.
+- **Enable Auto-Sync**: Check the box to start fetching immediately after saving.
 
-### 3. Execution
-- Click **Manual Sync** for an immediate pull, or let the **Daily Sync** handle it automatically.
+### 3. Monitoring
+- Use the **Settings Dashboard** to track real-time sync progress.
+- Click **"View Synced Jobs"** to manage your imported listings.
 
 ---
 
-## 🛠️ Developer Info
+## 🛠️ Developer Architecture
 
-| Type | Identifier |
+| Component | Description |
 | :--- | :--- |
-| **Post Type** | `ajs_job` |
-| **Taxonomy** | `ajs_country` |
-| **API Limit** | 250 calls / 12,500 jobs daily |
+| **Provider Factory** | `Joby_API` – Instantiates provider classes dynamically. |
+| **Interface** | `Joby_Provider_Interface` – Foundation for adding new APIs. |
+| **Queue Engine** | `Joby_Sync_Engine` – Handles batch processing and rate limiting. |
 
 **Meta Fields**: 
-`_ajs_remote_id`, `_ajs_location`, `_ajs_company`, `_ajs_redirect_url`, `_ajs_salary_min`, `_ajs_salary_max`.
+`_ajs_remote_id`, `_ajs_location`, `_ajs_company`, `_ajs_url`, `_ajs_type`, `_ajs_salary`.
 
 ---
 
 ## 🤝 Community
 
-- **Contributing**: Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-- **Security**: Report vulnerabilities privately via the [Security Policy](SECURITY.md).
+- **Contributing**: Please see [CONTRIBUTING.md](CONTRIBUTING.md) for updated design & code guidelines.
 - **Support**: Developed by **Abolade Greatness** ([@grtsnx](https://github.com/grtsnx)).
 
 ---

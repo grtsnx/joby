@@ -2,55 +2,57 @@
 
 Thank you for helping! We love your help. ❤️ 
 
-Keeping the project clean is easy. Just follow these simple rules!
+With the release of **v2.0**, we have moved to a more modern, flexible architecture and a premium design system.
 
 ---
 
 ## 🏗️ 1. How to add your code
 1.  **Fork** this project to your own account.
-2.  **Create a branch** for your work (e.g., `git checkout -b my-new-feature`).
+2.  **Create a branch** for your work (e.g., `git checkout -b fix-adzuna-mapping`).
 3.  **Do your work** and test it.
 4.  **Send a Pull Request** (PR) to our `dev` branch.
 
 ---
 
-## 🏷️ 2. The "Magic Prefixes" for your Work
-To help our robot create a new version automatically, always start your PR titles with one of these magic words:
-
-| Magic Word | What it means | What happens |
-| :--- | :--- | :--- |
-| **`feat:`** | You added a **New Feature** | Version goes up (e.g., 1.0.0 → 1.1.0) 🚀 |
-| **`fix:`** | You fixed a **Bug** | Version goes up a tiny bit (1.0.0 → 1.0.1) 🐛 |
-| **`docs:`** | You fixed **Documentation** | No new version (just updates the site) 📖 |
-| **`chore:`** | Small cleanup | No new version 🏠 |
+## 🧩 2. Adding New Providers
+We now use a **Plug-and-Play Architecture**. If you want to add a new job source (e.g., Indeed, LinkedIn):
+1. Create a new class in `includes/providers/` that implements `Joby_Provider_Interface`.
+2. Register your provider in the `Joby_API` factory.
+3. Keep it lightweight! We prefer providers that provide clean JSON data.
 
 ---
 
-## 🗂️ 3. Using Labels for Pretty Release Notes
-When you open a PR, please add one of these **Labels**. This tells our robot where to put your name on the "Release Page":
-
-- **Feature label** → Your changes appear under **🚀 Features**
-- **Bug label** → Your changes appear under **🐛 Fixes**
-- **UI label** → Your changes appear under **🏠 Improvements**
-- **Documentation label** → Your changes appear under **📖 Documentation**
-
----
-
-## 🖤 4. How it should look (Design Rules)
-Joby Sync is **Monochrome** (only Black and White). 
-- ⬛ **Black** and ⬜ **White** only. No grays!
-- 📐 **Sharp Corners**: No rounded edges.
-- 🌑 **Heavy Shadows**: Use thick black shadows for boxes.
-- 🔠 **LOUD HEADERS**: Use big, bold, uppercase letters for titles.
+## 🖼️ 3. Design Standards (Apple "Clean-Light")
+Joby Sync v2.0 uses a high-end, minimalist aesthetic. Please follow these rules for any UI changes:
+- **Spacious**: Use plenty of padding (`20px-40px`) and margins.
+- **Rounded**: Use `12px` border-radius for cards and `20px` for buttons.
+- **Apple Colors**: 
+    - Soft background: `#F5F5F7`
+    - High-contrast headers: `#1D1D1F`
+    - Accent Blue: `#0071E3`
+- **Soft Shadows**: Use very subtle, blurry shadows (no hard black outlines).
+- **Inter Typography**: Use system-native fonts with wide tracking.
 
 ---
 
-## 🔒 5. Coding Rules (Keep it safe!)
-- **WordPress Rules**: Follow the standard WordPress way of coding.
-- **Security**: Always clean your data! Use `sanitize_text_field()` and `esc_html()`.
-- **Comments**: Explain what your code does so others can understand!
+## 🏷️ 4. The "Magic Prefixes"
+Always start your PR titles with one of these words to trigger our automated release system:
+
+| Magic Word | What it means |
+| :--- | :--- |
+| **`feat:`** | A **New Feature** (v.X.1.0) 🚀 |
+| **`fix:`** | A **Bug Fix** (v.X.X.1) 🐛 |
+| **`docs:`** | **Documentation** updates 📖 |
+| **`style:`** | **Visual/UI** updates 🎨 |
+
+---
+
+## 🔒 5. Security & WordPress Rules
+- **Sanitization**: Always use `sanitize_text_field()` and `esc_html()`.
+- **Nonces**: Use security nonces for ALL AJAX and form submissions.
+- **Comments**: Explain the "Why", not just the "What" in your code comments.
 
 ---
 
 ### That's it! 🥳
-If you follow these steps, the robots will handle all the hard work (versioning and release notes) and you will look like a pro!
+Follow these steps, and you'll helping build the best job aggregator for WordPress.
