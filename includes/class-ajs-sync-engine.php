@@ -28,10 +28,13 @@ class Joby_Sync_Engine {
         $cycle_id = time();
 
         if (empty($countries)) {
+            $this->log_activity('Sync failed: No locations configured.');
             update_option('ajs_last_sync_error', 'No locations configured for sync.');
             update_option('ajs_sync_status', 'idle');
             return;
         }
+
+        $this->log_activity('Starting sync for ' . count($countries) . ' regions...');
 
         foreach ( $countries as $country ) {
             // Providers handle count differently
@@ -76,9 +79,11 @@ class Joby_Sync_Engine {
         $jobs = $provider->fetch_jobs( $task['country_code'], $task['count'], $task['page'] );
 
         if ( is_wp_error( $jobs ) ) {
+            $this->log_activity('API Error (' . $task['country_code'] . '): ' . $jobs->get_error_message());
             update_option('ajs_last_sync_error', $jobs->get_error_message());
             // We don't stop the whole sync, just skip this task
         } else {
+            $this->log_activity('Fetched ' . count($jobs) . ' jobs for ' . $task['country_name']);
             foreach ( $jobs as $job ) {
                 $this->upsert_job( $job, $task['country_name'], $task['cycle_id'] );
             }
@@ -166,5 +171,33 @@ class Joby_Sync_Engine {
 
         update_option( 'ajs_sync_status', 'completed' );
         update_option( 'ajs_last_sync_completed', time() );
+        $this->log_activity('Sync completed successfully. Database cleaned.');
+    }
+
+    public function log_activity( $message ) {
+        $logs = get_site_transient( 'ajs_sync_logs' );
+        if ( ! is_array( $logs ) ) $logs = array();
+        
+        $logs[] = array(
+            'time' => date( 'H:i:s' ),
+            'msg'  => $message
+        );
+        
+        // Keep only last 20 logs
+        if ( count( $logs ) > 20 ) {
+            $logs = array_slice( $logs, -20 );
+        }
+        
+        set_site_transient( 'ajs_sync_logs', $logs, HOUR_IN_SECONDS );
+    }
+
+    public static function get_stats() {
+        $stats = array(
+            'total_jobs' => wp_count_posts( 'ajs_job' )->publish,
+            'countries'  => count( get_option( 'ajs_countries', array() ) ),
+            'last_sync'  => get_option( 'ajs_last_sync_completed' ),
+            'provider'   => get_option( 'ajs_ajs_provider', 'Arbeitnow' )
+        );
+        return $stats;
     }
 }

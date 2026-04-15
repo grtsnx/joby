@@ -99,14 +99,68 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Progress bar animation if in progress
-    if ($('.ajs-progress-bar').length > 0) {
-        let lastQueue = -1;
-        setInterval(function() {
-            // In a real app, we might poll an endpoint, 
-            // but for now, we'll just simulate progress based on queue count
-            // Or just reload the page occasionally.
-        }, 5000);
+    // Real-time Logs Polling
+    let logInterval = null;
+
+    function pollLogs() {
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_get_logs',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            if (response.success) {
+                const data = response.data;
+                updateLogConsole(data.logs);
+                updateProgress(data.queue);
+                
+                if (data.status === 'in_progress') {
+                    if (!logInterval) logInterval = setInterval(pollLogs, 3000);
+                } else {
+                    clearInterval(logInterval);
+                    logInterval = null;
+                    if (data.status === 'completed' || data.status === 'error') {
+                        setTimeout(() => location.reload(), 2000);
+                    }
+                }
+            }
+        });
+    }
+
+    function updateLogConsole(logs) {
+        const $console = $('#ajs-log-console');
+        if (!logs || logs.length === 0) return;
+        
+        let html = '';
+        logs.forEach(log => {
+            html += `<div class="ajs-log-entry"><span class="ajs-log-time">[${log.time}]</span> ${log.msg}</div>`;
+        });
+        $console.html(html);
+        $console.scrollTop($console[0].scrollHeight);
+    }
+
+    function updateProgress(queueCount) {
+        $('.tasks-count strong').text(queueCount);
+        // Progress estimation
+        const progress = Math.min(100, Math.max(10, 100 - (queueCount * 2)));
+        $('.ajs-progress-bar').css('width', progress + '%');
+    }
+
+    $('#ajs-toggle-logs').on('click', function() {
+        const $console = $('#ajs-log-console');
+        if ($console.is(':visible')) {
+            $console.slideUp();
+            $(this).text('Show Logs Console');
+        } else {
+            $console.slideDown();
+            $(this).text('Hide Logs Console');
+            pollLogs();
+        }
+    });
+
+    // Start polling immediately if sync is in progress
+    if ($('.status-card').hasClass('in_progress')) {
+        $('#ajs-log-console').show();
+        $('#ajs-toggle-logs').text('Hide Logs Console');
+        pollLogs();
     }
 
     // Show toast if settings just saved
