@@ -269,6 +269,22 @@
 
 .ajs-log-toggle:hover { color: var(--ajs-accent); }
 
+/* Warning Banner */
+.ajs-warning-banner {
+    background: #FFFBEB;
+    border: 1px solid #FEF3C7;
+    border-radius: var(--ajs-radius-sm);
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.ajs-warning-icon { font-size: 18px; }
+.ajs-warning-text { font-size: 13px; color: #92400E; line-height: 1.4; }
+.ajs-warning-text strong { color: #78350F; }
+
 /* Modal Styling */
 .ajs-modal {
     position: fixed;

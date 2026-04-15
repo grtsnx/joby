@@ -36,7 +36,17 @@ class Joby_Sync_Engine {
 
         $this->log_activity('Starting sync for ' . count($countries) . ' regions...');
 
+        $provider_slug = get_option('ajs_provider', 'adzuna');
+        $provider = Joby_API::get_provider($provider_slug);
+        $supported = array_keys( $provider->get_supported_countries() );
+
         foreach ( $countries as $country ) {
+            // Validation: Skip if not supported by current provider (except Arbeitnow which is global)
+            if ( $provider_slug !== 'arbeitnow' && ! in_array( $country['code'], $supported ) ) {
+                $this->log_activity('⚠️ Skipped ' . $country['name'] . ' (' . $country['code'] . '): Not supported by ' . $provider->get_name());
+                continue;
+            }
+
             // Providers handle count differently
             $pages = ceil( $country['count'] / 50 );
             for ( $i = 1; $i <= $pages; $i++ ) {
