@@ -26,6 +26,7 @@ class Joby_Sync_Engine {
         $countries = get_option( 'ajs_countries', array() );
         $queue = array();
         $cycle_id = time();
+        update_option( 'ajs_last_sync_start', $cycle_id );
 
         if (empty($countries)) {
             $this->log_activity('Sync failed: No locations configured.');
@@ -216,10 +217,47 @@ class Joby_Sync_Engine {
             wp_delete_post( $post_id, true );
         }
 
+        $this->cleanup_duplicates();
         update_option( 'ajs_sync_status', 'completed' );
         wp_clear_scheduled_hook( 'ajs_process_queue_event' );
         update_option( 'ajs_last_sync_completed', time() );
         $this->log_activity('Sync completed successfully. Database cleaned.');
+    }
+
+    /**
+     * Remove any duplicate jobs sharing the same remote ID
+     */
+    private function cleanup_duplicates() {
+        global $wpdb;
+        
+        // Find duplicate remote IDs and keep the newest one (highest ID)
+        $duplicates = $wpdb->get_results( "
+            SELECT meta_value, COUNT(post_id) as count 
+            FROM {$wpdb->postmeta} 
+            WHERE meta_key = '_ajs_remote_id' 
+            GROUP BY meta_value 
+            HAVING count > 1
+        " );
+
+        if ( ! empty( $duplicates ) ) {
+            foreach ( $duplicates as $dupe ) {
+                $remote_id = $dupe->meta_value;
+                $post_ids = $wpdb->get_col( $wpdb->prepare( "
+                    SELECT post_id FROM {$wpdb->postmeta} 
+                    WHERE meta_key = '_ajs_remote_id' AND meta_value = %s 
+                    ORDER BY post_id DESC
+                ", $remote_id ) );
+
+                // Keep the first one (newest), delete the rest
+                if ( count( $post_ids ) > 1 ) {
+                    $to_delete = array_slice( $post_ids, 1 );
+                    foreach ( $to_delete as $pid ) {
+                        wp_delete_post( $pid, true );
+                    }
+                }
+            }
+            $this->log_activity('🧹 Cleaned up ' . count($duplicates) . ' duplicate job entries.');
+        }
     }
 
     public function log_activity( $message ) {

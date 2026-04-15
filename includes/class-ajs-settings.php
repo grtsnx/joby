@@ -109,7 +109,7 @@ class Joby_Settings {
                 $cards = array(
                     'Total Jobs' => $stats['total_jobs'],
                     'Regions'    => $stats['countries'],
-                    'Last Sync'  => $stats['last_sync'] ? human_time_diff($stats['last_sync'], current_time('timestamp')) . ' ago' : 'Never'
+                    'Last Sync'  => $stats['last_sync'] ? human_time_diff($stats['last_sync'], time()) . ' ago' : 'Never'
                 );
                 foreach ($cards as $label => $val) : ?>
                     <div class="ajs-stat-card">
@@ -121,32 +121,55 @@ class Joby_Settings {
 
             <div class="ajs-main-grid">
                 <div class="ajs-grid-left">
-                    <div class="ajs-card status-card <?php echo esc_attr($status); ?>">
-                        <h3>Real-time Sync Control</h3>
-                        <div class="status-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div class="ajs-card status-card <?php echo esc_attr($status); ?> premium-control">
+                        <div class="status-top">
+                            <h3>Real-time Sync Control</h3>
                             <span class="status-badge"><?php echo esc_html(ucfirst(str_replace('_', ' ', $status))); ?></span>
-                            <?php if ( $status === 'in_progress' ) : ?>
-                                <span class="tasks-count"><strong><?php echo count($queue); ?></strong> tasks left</span>
-                            <?php endif; ?>
                         </div>
 
-                        <?php if ( $status === 'in_progress' ) : ?>
-                            <div class="ajs-progress-container" style="background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin: 15px 0;">
-                                <div class="ajs-progress-bar" style="width: 0%; height: 100%; background: var(--ajs-accent); transition: width 0.3s ease;"></div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="ajs-sync-controls" style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button id="ajs-trigger-sync" class="button button-primary" <?php disabled($status, 'in_progress'); ?>>
-                                <?php echo $status === 'in_progress' ? 'Syncing...' : 'Start Manual Sync'; ?>
-                            </button>
-                            <?php if ($status === 'in_progress') : ?>
-                                <button id="ajs-cancel-sync" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Stop Syncing</button>
+                        <div class="sync-info">
+                            <?php if ( $status === 'in_progress' ) : ?>
+                                <div class="progress-wrapper">
+                                    <div class="progress-meta">
+                                        <span class="tasks-count"><strong><?php echo count($queue); ?></strong> tasks in queue</span>
+                                        <span class="progress-percent">0%</span>
+                                    </div>
+                                    <div class="ajs-progress-container premium">
+                                        <div class="ajs-progress-bar gradient-pulse" style="width: 0%;"></div>
+                                    </div>
+                                    <p class="current-step">Analyzing regions...</p>
+                                </div>
+                            <?php else : ?>
+                                <p class="status-msg">
+                                    <?php echo $status === 'completed' ? 'System idle. All jobs are up to date.' : 'Ready to start synchronization.'; ?>
+                                </p>
                             <?php endif; ?>
+                        </div>
+                        
+                        <div class="ajs-sync-controls premium-group">
+                            <div class="control-left">
+                                <button id="ajs-trigger-sync" class="button button-primary premium-btn" <?php disabled($status, 'in_progress'); ?>>
+                                    <?php echo $status === 'in_progress' ? 'Syncing...' : 'Start Manual Sync'; ?>
+                                </button>
+                                <?php if ($status === 'in_progress') : ?>
+                                    <button id="ajs-cancel-sync" class="button button-link-delete">Stop Syncing</button>
+                                <?php endif; ?>
+                            </div>
+                            <div class="control-right">
+                                <?php if ($status === 'in_progress' || $status === 'error') : ?>
+                                    <button id="ajs-force-batch" class="button button-secondary nudge-btn">Force Next Batch</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="status-footer">
+                            <a href="#" id="ajs-view-diagnostics" class="diagnostic-link">🔍 View Diagnostic Data</a>
                         </div>
 
                         <?php if ($error && $status !== 'in_progress') : ?>
-                            <p style="color: #D70000; font-size: 13px; margin-top: 15px;">⚠️ Last Error: <?php echo esc_html($error); ?></p>
+                            <div class="ajs-error-notice">
+                                <strong>Last Error:</strong> <?php echo esc_html($error); ?>
+                            </div>
                         <?php endif; ?>
                     </div>
 
@@ -266,7 +289,6 @@ class Joby_Settings {
                             <div class="ajs-modal-body">
                                 <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                                     <span style="font-size: 13px; color: var(--ajs-text-secondary);">Internal plugin state & last API response.</span>
-                                    <button type="button" class="button button-small" id="ajs-force-batch" style="background: var(--ajs-accent); color: white; border: none; padding: 5px 12px; height: auto; cursor: pointer;">Force Process Next Batch</button>
                                 </div>
                                 <pre id="ajs-raw-json"></pre>
                             </div>

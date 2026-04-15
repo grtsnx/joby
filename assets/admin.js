@@ -190,8 +190,9 @@ jQuery(document).ready(function($) {
         });
     }
 
-    // View Raw Data Modal
-    $('#ajs-view-raw-logs').on('click', function() {
+    // View Raw Data Modal (Diagnostics)
+    $(document).on('click', '#ajs-view-diagnostics', function(e) {
+        e.preventDefault();
         $.post(ajs_vars.ajax_url, {
             action: 'ajs_get_logs',
             nonce: ajs_vars.nonce
@@ -223,9 +224,25 @@ jQuery(document).ready(function($) {
 
     function updateProgress(queueCount) {
         $('.tasks-count strong').text(queueCount);
-        // Progress estimation
-        const progress = Math.min(100, Math.max(10, 100 - (queueCount * 2)));
+        
+        // Progress estimation logic
+        let progress = 0;
+        if (queueCount > 0) {
+            // Start at 10%, move towards 95% as items decrease
+            progress = Math.min(95, Math.max(10, 100 - (queueCount * 1.5)));
+        } else {
+            progress = 100;
+        }
+
         $('.ajs-progress-bar').css('width', progress + '%');
+        $('.progress-percent').text(Math.round(progress) + '%');
+
+        // Dynamic step messaging
+        const $step = $('.current-step');
+        if (progress < 30) $step.text('Fetching data from API...');
+        else if (progress < 70) $step.text('Processing and deduping jobs...');
+        else if (progress < 100) $step.text('Finalizing sync and clearing cache...');
+        else $step.text('Sync completed!');
     }
 
     $('#ajs-toggle-logs').on('click', function() {
