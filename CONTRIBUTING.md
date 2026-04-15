@@ -8,9 +8,9 @@ All types of contributions are encouraged and valued. This document provides gui
 
 - [Code of Conduct](#code-of-conduct)
 - [How to Contribute](#how-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Code Contributions](#code-contributions)
+- [Commit & Versioning Convention](#commit--versioning-convention)
+- [Labels Guide](#labels-guide)
+- [Design Standards](#design-standards)
 - [Coding Standards](#coding-standards)
 
 ---
@@ -36,7 +36,7 @@ We welcome suggestions! Please use our **Feature Request** template to describe 
 3. **Make your changes**, ensuring you follow our [Coding Standards](#coding-standards).
 4. **Test your changes** locally.
 5. **Commit your changes**: `git commit -m "feat: add my new feature"`.
-6. **Push** to your fork and submit a **Pull Request** against the `main` branch.
+6. **Push** to your fork and submit a **Pull Request** against the `dev` branch.
 
 ## 🏷️ Commit & Versioning Convention
 
@@ -45,14 +45,38 @@ This project uses **Semantic Versioning** and automated releases. To ensure your
 - **`feat:`**: A new feature (triggers a **Minor** version bump, e.g., 1.0.0 -> 1.1.0)
 - **`fix:`**: A bug fix (triggers a **Patch** version bump, e.g., 1.0.0 -> 1.0.1)
 - **`docs:`**: Documentation changes
-- **`style:`**: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- **`style:`**: Changes that do not affect the meaning of the code
 - **`refactor:`**: A code change that neither fixes a bug nor adds a feature
 - **`perf:`**: A code change that improves performance
-- **`test:`**: Adding missing tests or correcting existing tests
-- **`chore:`**: Changes to the build process or auxiliary tools and libraries
+- **`test:`**: Adding missing tests
+- **`chore:`**: Changes to the build process or auxiliary tools
 
 ### Breaking Changes
-If your change is a **Breaking Change**, include `BREAKING CHANGE:` in the commit body or a `!` after the type (e.g., `feat!: ...`). This will trigger a **Major** version bump (e.g., 1.0.0 -> 2.0.0).
+Include `BREAKING CHANGE:` in the commit body or a `!` after the type (e.g., `feat!: ...`). This triggers a **Major** version bump (e.g., 1.0.0 -> 2.0.0).
+
+## 🗂️ Labels Guide
+
+When opening a Pull Request, please apply the appropriate labels. Labels drive the **Automated Release Notes** categorization:
+
+| Label | Description | Release Category |
+| :--- | :--- | :--- |
+| `feature` / `enhancement` | New functionality or improvements | 🚀 Features |
+| `bug` / `fix` | Correcting a problem in the code | 🐛 Fixes |
+| `ui` | Changes to the look and feel | 🏠 Improvements |
+| `improvement` / `refactor` | Code quality or performance | 🏠 Improvements |
+| `dependencies` | Updating external libraries | 📦 Dependencies |
+| `documentation` | README or wiki updates | 📖 Documentation |
+| `security` | Critical security fixes | 🐛 Fixes (High Priority) |
+| `maintenance` / `chore` | Build tasks or project health | 🏠 Maintenance |
+
+## 🖤 Design Standards (Monochrome & Brutalist)
+
+Joby Sync follows a high-contrast, **Monochrome Brutalist** aesthetic. If you are adding new UI elements to the WordPress admin:
+
+- **Colors**: Use only Black (#000) and White (#FFF). Avoid grays unless absolutely necessary for disabled states.
+- **Corners**: Use sharp corners (0px border-radius) for a distinct "raw" look.
+- **Shadows**: Use heavy, solid monochrome shadows (e.g., `box-shadow: 10px 10px 0px #000;`) instead of soft blurs.
+- **Typography**: Use bold, uppercase headers for section titles.
 
 ## Coding Standards
 
@@ -64,4 +88,4 @@ To maintain consistency and code quality, please adhere to the following:
 
 ---
 
-*If you like the project but don't have time to contribute code, starring the repository or sharing it with others is also a great way to help!*
+*If you like the project but don't have time to contribute code, starring the repository is a great way to help!*
