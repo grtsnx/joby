@@ -83,6 +83,24 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Clear Cache
+    $('#ajs-clear-cache').on('click', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Clearing...');
+
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_clear_cache',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            $btn.prop('disabled', false).text('Clear Cache');
+            if (response.success) {
+                showToast(response.data, 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        });
+    });
+
     // Dynamic Row Handling for Countries
     $('#ajs-add-country').on('click', function() {
         const index = $('#ajs-countries-table tbody tr').not('.empty-row').length;
