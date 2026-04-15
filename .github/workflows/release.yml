@@ -19,8 +19,20 @@ jobs:
       - name: Create Package Directory
         run: |
           mkdir -p build/joby-sync
-          # Copy only necessary files, excluding dev junk
-          rsync -rr . build/joby-sync --exclude '.git*' --exclude '.github' --exclude '.DS_Store' --exclude 'release.sh' --exclude 'build'
+          # Copy only essential production files, excluding all development and repository metadata
+          rsync -rr . build/joby-sync \
+            --exclude '.git*' \
+            --exclude '.github' \
+            --exclude '.DS_Store' \
+            --exclude 'release.sh' \
+            --exclude 'build' \
+            --exclude 'LICENSE' \
+            --exclude 'README.md' \
+            --exclude 'CONTRIBUTING.md' \
+            --exclude 'SECURITY.md' \
+            --exclude 'CODE_OF_CONDUCT.md' \
+            --exclude '.gitignore' \
+            --exclude 'task.md'
 
       - name: Zip Plugin
         run: |
@@ -39,6 +51,7 @@ jobs:
           tag_name: ${{ steps.vars.outputs.tag }}
           name: Release ${{ steps.vars.outputs.tag }} (${{ steps.vars.outputs.date }})
           files: joby-sync.zip
+          generate_release_notes: true
           body: |
             ## Automated Release
             This release was automatically generated on a merge to the main branch.

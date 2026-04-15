@@ -10,8 +10,7 @@ echo "🚀 Starting release process for $PLUGIN_NAME v$VERSION..."
 echo "📦 Packaging plugin..."
 zip -r "${PLUGIN_NAME}.zip" . -x "*.git*" ".DS_Store" "*.sh" "README.md" "LICENSE" "CODE_OF_CONDUCT.md"
 # Note: Usually README, LICENSE, and COC are included in the zip for WP. 
-# Re-running zip to include them but exclude Git.
-zip -r "${PLUGIN_NAME}.zip" . -x "*.git*" ".DS_Store" "*.sh"
+zip -r "${PLUGIN_NAME}.zip" . -x "*.git*" ".github*" ".DS_Store" "*.sh" "LICENSE" "README.md" "CODE_OF_CONDUCT.md" "CONTRIBUTING.md" "SECURITY.md" ".gitignore" "task.md" "implementation_plan*"
 
 # 2. Git Workflow
 echo "Git staging..."
