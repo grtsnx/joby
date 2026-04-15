@@ -22,6 +22,7 @@ define('JOBY_URL', plugin_dir_url(__FILE__));
 require_once JOBY_PATH . 'includes/class-ajs-api.php';
 require_once JOBY_PATH . 'includes/class-ajs-sync-engine.php';
 require_once JOBY_PATH . 'includes/class-ajs-settings.php';
+require_once JOBY_PATH . 'includes/class-ajs-updater.php';
 
 /**
  * Main Plugin Class
@@ -47,6 +48,11 @@ class Joby_Sync
         // Initialize components
         Joby_Settings::get_instance();
         Joby_Sync_Engine::get_instance();
+
+        // Initialize Update Engine (Checks GitHub for new releases)
+        if ( is_admin() ) {
+            new Joby_Updater( JOBY_PATH . 'joby-sync.php', 'grtsnx/joby' );
+        }
     }
 
     /**
