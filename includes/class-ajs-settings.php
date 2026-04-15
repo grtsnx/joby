@@ -23,6 +23,9 @@ class Joby_Settings {
         add_action( 'wp_ajax_ajs_check_updates', array( $this, 'handle_check_updates' ) );
         add_action( 'wp_ajax_ajs_get_logs', array( $this, 'handle_get_logs' ) );
         add_action( 'wp_ajax_ajs_clear_cache', array( $this, 'handle_clear_cache' ) );
+        
+        // Prevent duplicated footer by hiding default WP footer on this page
+        add_action( 'admin_head', array( $this, 'hide_default_footer' ) );
     }
 
     public function add_menu() {
@@ -336,5 +339,13 @@ class Joby_Settings {
             #toplevel_page_joby-sync .wp-menu-image img { width: 20px !important; height: auto !important; padding-top: 7px !important; }
         </style>
         <?php
+    }
+
+    public function hide_default_footer() {
+        $screen = get_current_screen();
+        if ( $screen && $screen->id === 'toplevel_page_joby-sync' ) {
+            add_filter( 'admin_footer_text', '__return_empty_string', 999 );
+            add_filter( 'update_footer', '__return_empty_string', 999 );
+        }
     }
 }
