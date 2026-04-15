@@ -1,60 +1,92 @@
-jQuery(document).ready(function ($) {
-	const $table = $("#ajs-countries-table tbody");
-	const template = $("#ajs-row-template").html();
+jQuery(document).ready(function($) {
+    
+    // Toast helper
+    function showToast(message, type = 'success') {
+        const toast = $('<div class="ajs-toast ' + type + '">' + message + '</div>');
+        $('body').append(toast);
+        setTimeout(() => toast.addClass('show'), 100);
+        setTimeout(() => {
+            toast.removeClass('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
-	// Add row
-	$("#ajs-add-country").on("click", function () {
-		$(".empty-row").remove();
-		const index = $table.find("tr").length;
-		const newRow = template.replace(/{{index}}/g, index);
-		$table.append(newRow);
-	});
+    // Dynamic Provider Fields
+    $('#ajs_provider_select').on('change', function() {
+        const selected = $(this).val();
+        $('.provider-field').hide();
+        $('.provider-' + selected).fadeIn();
+        
+        // Show a helpful tip for Arbeitnow
+        if (selected === 'arbeitnow') {
+            showToast('Arbeitnow selected: Public API (no keys needed)', 'success');
+        }
+    });
 
-	// Remove row
-	$table.on("click", ".ajs-remove-row", function () {
-		$(this).closest("tr").remove();
-		if ($table.find("tr").length === 0) {
-			$table.append('<tr class="empty-row"><td colspan="4">No countries added yet.</td></tr>');
-		}
+    // Start Manual Sync
+    $('#ajs-trigger-sync').on('click', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Syncing...');
 
-		// Re-index inputs
-		reindexRows();
-	});
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_trigger_sync',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            if (response.success) {
+                showToast('Sync process started in background!', 'success');
+                location.reload(); // Reload to show progress bar
+            } else {
+                showToast('Error: ' + response.data, 'error');
+                $btn.prop('disabled', false).text('Start Manual Sync');
+            }
+        });
+    });
 
-	function reindexRows() {
-		$table.find("tr").each(function (index) {
-			$(this)
-				.find("input")
-				.each(function () {
-					const name = $(this).attr("name");
-					if (name) {
-						const newName = name.replace(/ajs_countries\[\d+\]/, "ajs_countries[" + index + "]");
-						$(this).attr("name", newName);
-					}
-				});
-		});
-	}
+    // Cancel Sync
+    $('#ajs-cancel-sync').on('click', function(e) {
+        e.preventDefault();
+        if (!confirm('Are you sure you want to stop the current sync?')) return;
+        
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_cancel_sync',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            if (response.success) {
+                showToast('Sync cancelled.', 'error');
+                location.reload();
+            }
+        });
+    });
 
-	// Trigger Sync
-	$("#ajs-trigger-sync").on("click", function () {
-		const $btn = $(this);
-		$btn.prop("disabled", true).text("Starting Sync...");
+    // Dynamic Row Handling for Countries
+    $('#ajs-add-country').on('click', function() {
+        const index = $('#ajs-countries-table tbody tr').not('.empty-row').length;
+        const template = $('#ajs-row-template').html().replace(/{{index}}/g, index);
+        
+        $('#ajs-countries-table tbody').find('.empty-row').remove();
+        $('#ajs-countries-table tbody').append(template);
+    });
 
-		$.post(
-			ajs_vars.ajax_url,
-			{
-				action: "ajs_trigger_sync",
-				nonce: ajs_vars.nonce,
-			},
-			function (response) {
-				if (response.success) {
-					alert("Sync has been triggered and will run in the background.");
-					location.reload();
-				} else {
-					alert("Error: " + response.data);
-					$btn.prop("disabled", false).text("Start Manual Sync");
-				}
-			},
-		);
-	});
+    $('#ajs-countries-table').on('click', '.ajs-remove-row', function() {
+        $(this).closest('tr').remove();
+        if ($('#ajs-countries-table tbody tr').length === 0) {
+            $('#ajs-countries-table tbody').append('<tr class="empty-row"><td colspan="3">Click "Add Location" to get started.</td></tr>');
+        }
+    });
+
+    // Progress bar animation if in progress
+    if ($('.ajs-progress-bar').length > 0) {
+        let lastQueue = -1;
+        setInterval(function() {
+            // In a real app, we might poll an endpoint, 
+            // but for now, we'll just simulate progress based on queue count
+            // Or just reload the page occasionally.
+        }, 5000);
+    }
+
+    // Show toast if settings just saved
+    if (window.location.search.indexOf('settings-updated=true') > -1) {
+        showToast('Settings saved successfully!');
+    }
 });
