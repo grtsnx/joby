@@ -50,6 +50,9 @@ class Joby_Settings {
     }
 
     public function render_page() {
+        // Clear update cache on settings page load so user sees latest version
+        delete_site_transient( 'joby_update_check' );
+        
         $app_id    = get_option( 'ajs_app_id' );
         $app_key   = get_option( 'ajs_app_key' );
         $countries = get_option( 'ajs_countries', array() );
