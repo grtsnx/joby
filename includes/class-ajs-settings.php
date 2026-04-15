@@ -21,6 +21,7 @@ class Joby_Settings {
         add_action( 'wp_ajax_ajs_trigger_sync', array( $this, 'handle_trigger_sync' ) );
         add_action( 'wp_ajax_ajs_cancel_sync', array( $this, 'handle_cancel_sync' ) );
         add_action( 'wp_ajax_ajs_check_updates', array( $this, 'handle_check_updates' ) );
+        add_action( 'wp_ajax_ajs_get_logs', array( $this, 'handle_get_logs' ) );
     }
 
     public function add_menu() {
@@ -89,29 +90,52 @@ class Joby_Settings {
                 <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
             </div>
             
-            <div class="ajs-card status-card <?php echo esc_attr($status); ?>">
-                <h3>Sync Status: <span class="status-badge"><?php echo esc_html(ucfirst(str_replace('_', ' ', $status))); ?></span></h3>
-                <?php if ( $status === 'in_progress' ) : ?>
-                    <p>Tasks remaining: <strong><?php echo count($queue); ?></strong></p>
-                    <div class="ajs-progress-container" style="background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
-                        <div class="ajs-progress-bar" style="width: 0%; height: 100%; background: var(--ajs-accent); transition: width 0.3s ease;"></div>
+            <div class="ajs-dashboard-grid">
+                <?php 
+                $stats = Joby_Sync_Engine::get_stats();
+                $cards = array(
+                    'Total Jobs' => $stats['total_jobs'],
+                    'Regions'    => $stats['countries'],
+                    'Last Sync'  => $stats['last_sync'] ? human_time_diff($stats['last_sync'], current_time('timestamp')) . ' ago' : 'Never'
+                );
+                foreach ($cards as $label => $val) : ?>
+                    <div class="ajs-stat-card">
+                        <span class="ajs-stat-label"><?php echo esc_html($label); ?></span>
+                        <span class="ajs-stat-value"><?php echo esc_html($val); ?></span>
                     </div>
-                <?php else : ?>
-                    <p>Last completed: <strong><?php echo $last_sync ? date('Y-m-d H:i:s', $last_sync) : 'Never'; ?></strong></p>
-                    <?php if ($error) : ?>
-                        <p style="color: #D70000; font-size: 13px;">⚠️ Last Error: <?php echo esc_html($error); ?></p>
-                    <?php endif; ?>
-                <?php endif; ?>
-                
-                <div class="ajs-sync-controls" style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button id="ajs-trigger-sync" class="button button-primary" <?php disabled($status, 'in_progress'); ?>>
-                        <?php echo $status === 'in_progress' ? 'Syncing...' : 'Start Manual Sync'; ?>
-                    </button>
-                    <?php if ($status === 'in_progress') : ?>
-                        <button id="ajs-cancel-sync" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Stop Syncing</button>
-                    <?php endif; ?>
-                </div>
+                <?php endforeach; ?>
             </div>
+
+            <div class="ajs-main-grid">
+                <div class="ajs-grid-left">
+                    <div class="ajs-card status-card <?php echo esc_attr($status); ?>">
+                        <h3>Real-time Sync Control</h3>
+                        <div class="status-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <span class="status-badge"><?php echo esc_html(ucfirst(str_replace('_', ' ', $status))); ?></span>
+                            <?php if ( $status === 'in_progress' ) : ?>
+                                <span class="tasks-count"><strong><?php echo count($queue); ?></strong> tasks left</span>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if ( $status === 'in_progress' ) : ?>
+                            <div class="ajs-progress-container" style="background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin: 15px 0;">
+                                <div class="ajs-progress-bar" style="width: 0%; height: 100%; background: var(--ajs-accent); transition: width 0.3s ease;"></div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="ajs-sync-controls" style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="ajs-trigger-sync" class="button button-primary" <?php disabled($status, 'in_progress'); ?>>
+                                <?php echo $status === 'in_progress' ? 'Syncing...' : 'Start Manual Sync'; ?>
+                            </button>
+                            <?php if ($status === 'in_progress') : ?>
+                                <button id="ajs-cancel-sync" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Stop Syncing</button>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if ($error && $status !== 'in_progress') : ?>
+                            <p style="color: #D70000; font-size: 13px; margin-top: 15px;">⚠️ Last Error: <?php echo esc_html($error); ?></p>
+                        <?php endif; ?>
+                    </div>
 
             <form method="post" action="options.php" class="ajs-settings-form">
                 <?php settings_fields( 'ajs_settings_group' ); ?>
@@ -199,6 +223,27 @@ class Joby_Settings {
 
                 <?php submit_button('Save Settings'); ?>
             </form>
+                </div> <!-- .ajs-grid-left -->
+
+                <div class="ajs-grid-right">
+                    <div class="ajs-card">
+                        <h3>Sync Activity Logs</h3>
+                        <span id="ajs-toggle-logs" class="ajs-log-toggle">Show Logs Console</span>
+                        <div id="ajs-log-console" class="ajs-log-console" style="display: none;">
+                            <div class="ajs-log-placeholder">Wait for sync to start...</div>
+                        </div>
+                    </div>
+
+                    <div class="ajs-card">
+                        <h3>System Info</h3>
+                        <p style="font-size: 13px; color: #666;">
+                            <strong>WP Version:</strong> <?php echo get_bloginfo('version'); ?><br>
+                            <strong>PHP Version:</strong> <?php echo PHP_VERSION; ?><br>
+                            <strong>Joby Version:</strong> <?php echo JOBY_VERSION; ?>
+                        </p>
+                    </div>
+                </div> <!-- .ajs-grid-right -->
+            </div> <!-- .ajs-main-grid -->
         </div>
 
         <script id="ajs-row-template" type="text/template">
@@ -251,6 +296,20 @@ class Joby_Settings {
         }
         
         wp_send_json_success( 'Update check complete. Please refresh the page or check the Plugins menu.' );
+    }
+
+    public function handle_get_logs() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        $logs = get_site_transient( 'ajs_sync_logs' );
+        if ( ! is_array( $logs ) ) $logs = array();
+
+        wp_send_json_success( array(
+            'logs'   => $logs,
+            'status' => get_option( 'ajs_sync_status', 'idle' ),
+            'queue'  => count( get_option( 'ajs_sync_queue', array() ) )
+        ) );
     }
 
     public function fix_menu_icon_size() {
