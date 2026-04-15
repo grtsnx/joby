@@ -233,9 +233,25 @@ class Joby_Settings {
                 <div class="ajs-grid-right">
                     <div class="ajs-card">
                         <h3>Sync Activity Logs</h3>
-                        <span id="ajs-toggle-logs" class="ajs-log-toggle">Show Logs Console</span>
+                        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <span id="ajs-toggle-logs" class="ajs-log-toggle">Show Logs Console</span>
+                            <span id="ajs-view-raw-logs" class="ajs-log-toggle" style="color: var(--ajs-text-secondary);">View Raw Data</span>
+                        </div>
                         <div id="ajs-log-console" class="ajs-log-console" style="display: none;">
                             <div class="ajs-log-placeholder">Wait for sync to start...</div>
+                        </div>
+                    </div>
+
+                    <!-- Raw Data Modal -->
+                    <div id="ajs-raw-modal" class="ajs-modal" style="display: none;">
+                        <div class="ajs-modal-content">
+                            <div class="ajs-modal-header">
+                                <h3>Raw Sync Data</h3>
+                                <span class="ajs-modal-close">&times;</span>
+                            </div>
+                            <div class="ajs-modal-body">
+                                <pre id="ajs-raw-json"></pre>
+                            </div>
                         </div>
                     </div>
 
@@ -316,9 +332,14 @@ class Joby_Settings {
         if ( ! is_array( $logs ) ) $logs = array();
 
         wp_send_json_success( array(
-            'logs'   => $logs,
-            'status' => get_option( 'ajs_sync_status', 'idle' ),
-            'queue'  => count( get_option( 'ajs_sync_queue', array() ) )
+            'logs'             => $logs,
+            'status'           => get_option( 'ajs_sync_status', 'idle' ),
+            'queue_count'      => count( get_option( 'ajs_sync_queue', array() ) ),
+            'current_sync_id'  => get_option( 'ajs_current_sync_id' ),
+            'last_sync_time'   => get_option( 'ajs_last_sync_completed' ),
+            'last_error'       => get_option( 'ajs_last_sync_error' ),
+            'config_countries' => get_option( 'ajs_countries' ),
+            'provider'         => get_option( 'ajs_provider' )
         ) );
     }
 

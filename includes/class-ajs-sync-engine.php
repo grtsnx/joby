@@ -62,7 +62,7 @@ class Joby_Sync_Engine {
 
     public function process_queue() {
         $status = get_option('ajs_sync_status');
-        if ($status !== 'in_progress') return; // Handled cancellation
+        if ($status !== 'in_progress') return;
 
         $queue = get_option( 'ajs_sync_queue', array() );
         if ( empty( $queue ) ) {
@@ -70,46 +70,80 @@ class Joby_Sync_Engine {
             return;
         }
 
-        $task = array_shift( $queue );
-        update_option( 'ajs_sync_queue', $queue );
-
         $provider_slug = get_option('ajs_provider', 'adzuna');
         $provider = Joby_API::get_provider($provider_slug);
         
-        $jobs = $provider->fetch_jobs( $task['country_code'], $task['count'], $task['page'] );
+        $batch_size = 5; // Process 5 tasks per batch
+        $processed = 0;
+        $total_new = 0;
+        $cycle_id = get_option( 'ajs_current_sync_id' );
 
-        if ( is_wp_error( $jobs ) ) {
-            $this->log_activity('API Error (' . $task['country_code'] . '): ' . $jobs->get_error_message());
-            update_option('ajs_last_sync_error', $jobs->get_error_message());
-            // We don't stop the whole sync, just skip this task
-        } else {
-            $this->log_activity('Fetched ' . count($jobs) . ' jobs for ' . $task['country_name']);
-            foreach ( $jobs as $job ) {
-                $this->upsert_job( $job, $task['country_name'], $task['cycle_id'] );
+        while ( ! empty( $queue ) && $processed < $batch_size ) {
+            $task = array_shift( $queue );
+            $jobs = $provider->fetch_jobs( $task['country_code'], $task['count'], $task['page'] );
+
+            if ( is_wp_error( $jobs ) ) {
+                $this->log_activity('API Error (' . $task['country_code'] . '): ' . $jobs->get_error_message());
+            } elseif ( ! empty( $jobs ) ) {
+                $total_new += count( $jobs );
+                
+                // Optimized Bulk Upsert
+                $remote_ids = array_column( $jobs, 'id' );
+                $existing_map = $this->get_existing_job_map( $remote_ids );
+                
+                // Cache term ID for this task's country
+                $term_id = $this->get_or_create_country_term( $task['country_name'] );
+                
+                foreach ( $jobs as $job ) {
+                    $post_id = isset( $existing_map[ $job['id'] ] ) ? $existing_map[ $job['id'] ] : 0;
+                    $this->upsert_job( $job, $term_id, $task['cycle_id'], $post_id );
+                }
+                
+                $this->log_activity('⚡ Batch: Fetched ' . count($jobs) . ' jobs for ' . $task['country_name'] . ' (Page ' . $task['page'] . ')');
             }
+            
+            $processed++;
         }
 
+        update_option( 'ajs_sync_queue', $queue );
+
         if ( ! empty( $queue ) ) {
-            // If Arbeitnow, we can go faster. If Adzuna, we wait 10s.
-            $wait = ($provider_slug === 'arbeitnow') ? 2 : 10;
+            // Respect rate limits: 3s for Adzuna, 1s for others
+            $wait = ($provider_slug === 'adzuna') ? 3 : 1;
             wp_schedule_single_event( time() + $wait, 'ajs_process_queue_event' );
         } else {
             $this->complete_sync();
         }
     }
 
-    private function upsert_job( $job_data, $country_name, $cycle_id ) {
-        $remote_id = $job_data['id'];
-        
-        $existing_posts = get_posts( array(
-            'post_type'  => 'ajs_job',
-            'meta_key'   => '_ajs_remote_id',
-            'meta_value' => $remote_id,
-            'posts_per_page' => 1,
-            'post_status' => 'any',
-            'fields'      => 'ids'
+    private function get_existing_job_map( $remote_ids ) {
+        if ( empty( $remote_ids ) ) return array();
+
+        $posts = get_posts( array(
+            'post_type'      => 'ajs_job',
+            'posts_per_page' => -1,
+            'post_status'    => 'any',
+            'fields'         => 'ids',
+            'meta_query'     => array(
+                array(
+                    'key'     => '_ajs_remote_id',
+                    'value'   => $remote_ids,
+                    'compare' => 'IN'
+                )
+            )
         ) );
 
+        $map = array();
+        foreach ( $posts as $post_id ) {
+            $remote_id = get_post_meta( $post_id, '_ajs_remote_id', true );
+            if ( $remote_id ) $map[ $remote_id ] = $post_id;
+        }
+        return $map;
+    }
+
+    private function upsert_job( $job_data, $term_id, $cycle_id, $existing_post_id = 0 ) {
+        $remote_id = $job_data['id'];
+        
         $post_data = array(
             'post_title'   => $job_data['title'],
             'post_content' => $job_data['description'],
@@ -117,8 +151,8 @@ class Joby_Sync_Engine {
             'post_type'    => 'ajs_job',
         );
 
-        if ( ! empty( $existing_posts ) ) {
-            $post_id = $existing_posts[0];
+        if ( $existing_post_id ) {
+            $post_id = $existing_post_id;
             $post_data['ID'] = $post_id;
             wp_update_post( $post_data );
         } else {
@@ -127,15 +161,7 @@ class Joby_Sync_Engine {
 
         if ( ! $post_id || is_wp_error($post_id) ) return;
 
-        // Assign Taxonomy
-        $term = get_term_by( 'name', $country_name, 'ajs_country' );
-        if ( ! $term ) {
-            $term = wp_insert_term( $country_name, 'ajs_country' );
-            $term_id = is_wp_error( $term ) ? 0 : $term['term_id'];
-        } else {
-            $term_id = $term->term_id;
-        }
-        
+        // Assign Taxonomy (Optimized: term ID passed in)
         if ( $term_id ) wp_set_object_terms( $post_id, array( (int) $term_id ), 'ajs_country' );
 
         // Update meta using normalized provider data
@@ -146,6 +172,15 @@ class Joby_Sync_Engine {
         update_post_meta( $post_id, '_ajs_redirect_url', $job_data['url'] );
         update_post_meta( $post_id, '_ajs_type', $job_data['type'] );
         update_post_meta( $post_id, '_ajs_salary', $job_data['salary'] );
+    }
+
+    private function get_or_create_country_term( $country_name ) {
+        $term = get_term_by( 'name', $country_name, 'ajs_country' );
+        if ( ! $term ) {
+            $term = wp_insert_term( $country_name, 'ajs_country' );
+            return is_wp_error( $term ) ? 0 : $term['term_id'];
+        }
+        return $term->term_id;
     }
 
     private function complete_sync() {

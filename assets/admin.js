@@ -143,6 +143,25 @@ jQuery(document).ready(function($) {
         });
     }
 
+    // View Raw Data Modal
+    $('#ajs-view-raw-logs').on('click', function() {
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_get_logs',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            if (response.success) {
+                $('#ajs-raw-json').text(JSON.stringify(response.data, null, 4));
+                $('#ajs-raw-modal').fadeIn(200).css('display', 'flex');
+            }
+        });
+    });
+
+    $(document).on('click', '.ajs-modal-close, #ajs-raw-modal', function(e) {
+        if (e.target === this || $(e.target).hasClass('ajs-modal-close')) {
+            $('#ajs-raw-modal').fadeOut(200);
+        }
+    });
+
     function updateLogConsole(logs) {
         const $console = $('#ajs-log-console');
         if (!logs || logs.length === 0) return;
