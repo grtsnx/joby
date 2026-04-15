@@ -59,6 +59,30 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Check for Updates Manual Trigger
+    $('#ajs-check-updates').on('click', function(e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const originalText = $btn.text();
+        $btn.prop('disabled', true).text('Checking...');
+
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_check_updates',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            $btn.prop('disabled', false).text(originalText);
+            if (response.success) {
+                showToast(response.data, 'success');
+                // Optional: redirect to plugins page after a delay
+                setTimeout(() => {
+                    window.location.href = window.location.href; // Refresh to show any new status
+                }, 2000);
+            } else {
+                showToast('Error: ' + response.data, 'error');
+            }
+        });
+    });
+
     // Dynamic Row Handling for Countries
     $('#ajs-add-country').on('click', function() {
         const index = $('#ajs-countries-table tbody tr').not('.empty-row').length;

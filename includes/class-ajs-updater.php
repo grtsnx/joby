@@ -98,14 +98,34 @@ class Joby_Updater {
         $res->author         = 'Abolade Greatness';
         $res->homepage       = 'https://github.com/grtsnx/joby';
         $res->download_link  = $release->assets[0]->browser_download_url ?? $release->zipball_url;
-        $res->tested         = '6.4';
+        $res->tested         = '6.5';
         $res->requires       = '5.0';
         $res->last_updated   = $release->published_at;
         $res->sections       = array(
-            'description' => 'Dynamically fetch thousands of jobs daily from a remote API. This update contains the latest improvements and bug fixes.',
-            'changelog'   => $release->body ? wp_kses_post( $release->body ) : 'View details on GitHub.'
+            'description' => 'Dynamically fetch thousands of jobs daily from a remote API. This update contains the latest improvements and architectural changes.',
+            'changelog'   => $this->parse_markdown( $release->body )
         );
 
         return $res;
+    }
+
+    /**
+     * Simple Markdown to HTML parser for changelog
+     */
+    private function parse_markdown( $text ) {
+        if ( ! $text ) return 'View details on GitHub.';
+
+        // Convert common GitHub Markdown to HTML
+        $text = preg_replace('/### (.*)/', '<h4>$1</h4>', $text);
+        $text = preg_replace('/## (.*)/', '<h3>$1</h3>', $text);
+        $text = preg_replace('/\*\* (.*)\*\*/', '<strong>$1</strong>', $text);
+        $text = preg_replace('/\* (.*)/', '<li>$1</li>', $text);
+        
+        // Wrap <li> in <ul>
+        if (strpos($text, '<li>') !== false) {
+            $text = '<ul>' . $text . '</ul>';
+        }
+
+        return wp_kses_post( wpautop( $text ) );
     }
 }
