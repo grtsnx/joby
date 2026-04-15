@@ -1,4 +1,4 @@
-# Joby Sync for WordPress
+# <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync for WordPress
 
 
 **Joby Sync** is a robust, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Built for scale, it handles rate limits and server resources efficiently using a background task queue.
