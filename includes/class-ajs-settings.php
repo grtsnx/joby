@@ -27,7 +27,7 @@ class Joby_Settings {
             'manage_options',
             'joby-sync',
             array( $this, 'render_page' ),
-            'dashicons-cloud'
+            JOBY_URL . 'assets/icon.png'
         );
     }
 
