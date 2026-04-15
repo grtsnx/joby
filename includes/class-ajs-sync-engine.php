@@ -174,17 +174,36 @@ class Joby_Sync_Engine {
 
         if ( ! $post_id || is_wp_error($post_id) ) return;
 
-        // Assign Taxonomy (Optimized: term ID passed in)
+        // Assign Country Taxonomy
         if ( $term_id ) wp_set_object_terms( $post_id, array( (int) $term_id ), 'ajs_country' );
+
+        // Assign Job Type (Nature) Taxonomy
+        if ( ! empty( $job_data['type'] ) ) {
+            $type_label = str_replace( '_', ' ', ucfirst( $job_data['type'] ) );
+            if ( $type_label === 'Full time' ) $type_label = 'Full Time';
+            if ( $type_label === 'Part time' ) $type_label = 'Part Time';
+            
+            $type_term = wp_insert_term( $type_label, 'ajs_type' );
+            $type_id = is_wp_error( $type_term ) ? get_term_by( 'name', $type_label, 'ajs_type' )->term_id : $type_term['term_id'];
+            if ( $type_id ) wp_set_object_terms( $post_id, array( (int) $type_id ), 'ajs_type' );
+        }
+
+        // Assign Job Category Taxonomy
+        if ( ! empty( $job_data['category'] ) ) {
+            $cat_label = $job_data['category'];
+            $cat_term = wp_insert_term( $cat_label, 'ajs_category' );
+            $cat_id = is_wp_error( $cat_term ) ? get_term_by( 'name', $cat_label, 'ajs_category' )->term_id : $cat_term['term_id'];
+            if ( $cat_id ) wp_set_object_terms( $post_id, array( (int) $cat_id ), 'ajs_category' );
+        }
 
         // Update meta using normalized provider data
         update_post_meta( $post_id, '_ajs_remote_id', $remote_id );
         update_post_meta( $post_id, '_ajs_last_cycle_id', $cycle_id );
-        update_post_meta( $post_id, '_ajs_location', $job_data['location'] );
+        update_post_meta( $post_id, '_ajs_location_name', $job_data['location'] );
         update_post_meta( $post_id, '_ajs_company', $job_data['company'] );
-        update_post_meta( $post_id, '_ajs_redirect_url', $job_data['url'] );
-        update_post_meta( $post_id, '_ajs_type', $job_data['type'] );
+        update_post_meta( $post_id, '_ajs_apply_url', $job_data['url'] );
         update_post_meta( $post_id, '_ajs_salary', $job_data['salary'] );
+        update_post_meta( $post_id, '_ajs_provider', $job_data['provider'] ?? 'adzuna' );
     }
 
     private function get_or_create_country_term( $country_name ) {

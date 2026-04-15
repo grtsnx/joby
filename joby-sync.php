@@ -45,6 +45,9 @@ class Joby_Sync
     {
         add_action('init', array($this, 'register_cpt'));
         add_action('admin_init', array($this, 'activation_redirect'));
+        add_filter('manage_ajs_job_posts_columns', array($this, 'add_admin_columns'));
+        add_action('manage_ajs_job_posts_custom_column', array($this, 'render_admin_columns'), 10, 2);
+        add_filter('manage_edit-ajs_job_sortable_columns', array($this, 'make_columns_sortable'));
         new Joby_Shortcodes();
 
         // Initialize components
@@ -58,11 +61,27 @@ class Joby_Sync
     }
 
     /**
-     * Register Custom Post Type and Taxonomy
+     * Register Custom Post Type and Taxonomies
      */
     public function register_cpt()
     {
-        // Register Taxonomy
+        // Register Category Taxonomy
+        register_taxonomy('ajs_category', 'ajs_job', array(
+            'labels'       => array('name' => 'Job Categories', 'singular_name' => 'Job Category'),
+            'rewrite'      => array('slug' => 'job-category'),
+            'hierarchical' => true,
+            'show_in_rest' => true,
+        ));
+
+        // Register Nature/Type Taxonomy
+        register_taxonomy('ajs_type', 'ajs_job', array(
+            'labels'       => array('name' => 'Job Nature', 'singular_name' => 'Job Nature'),
+            'rewrite'      => array('slug' => 'job-nature'),
+            'hierarchical' => true,
+            'show_in_rest' => true,
+        ));
+
+        // Register Country Taxonomy
         register_taxonomy('ajs_country', 'ajs_job', array(
             'label'        => 'Job Country',
             'rewrite'      => array('slug' => 'job-country'),
@@ -80,9 +99,60 @@ class Joby_Sync
             'has_archive' => true,
             'menu_icon'   => 'dashicons-businessman',
             'supports'    => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'taxonomies'  => array('ajs_country'),
+            'taxonomies'  => array('ajs_country', 'ajs_category', 'ajs_type'),
             'show_in_rest' => true,
         ));
+    }
+
+    /**
+     * Define Admin Columns
+     */
+    public function add_admin_columns($columns)
+    {
+        $new_columns = array(
+            'cb'           => $columns['cb'],
+            'title'        => 'Title',
+            'ajs_category' => 'Job Categories',
+            'ajs_type'     => 'Job Nature',
+            'ajs_company'  => 'Company',
+            'ajs_location' => 'Job Location',
+            'date'         => 'Date',
+        );
+        return $new_columns;
+    }
+
+    /**
+     * Render Admin Column Content
+     */
+    public function render_admin_columns($column, $post_id)
+    {
+        switch ($column) {
+            case 'ajs_category':
+                echo get_the_term_list($post_id, 'ajs_category', '', ', ');
+                break;
+            case 'ajs_type':
+                echo get_the_term_list($post_id, 'ajs_type', '', ', ');
+                break;
+            case 'ajs_company':
+                echo esc_html(get_post_meta($post_id, '_ajs_company', true));
+                break;
+            case 'ajs_location':
+                $location = get_post_meta($post_id, '_ajs_location_name', true);
+                $country = get_the_term_list($post_id, 'ajs_country', '', ', ');
+                echo esc_html($location ?: 'Remote');
+                if ($country) echo ' (' . $country . ')';
+                break;
+        }
+    }
+
+    /**
+     * Make Columns Sortable
+     */
+    public function make_columns_sortable($columns)
+    {
+        $columns['ajs_company'] = 'ajs_company';
+        $columns['ajs_location'] = 'ajs_location';
+        return $columns;
     }
 
     /**
