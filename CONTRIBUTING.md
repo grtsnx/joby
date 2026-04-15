@@ -22,11 +22,11 @@ We now use a **Plug-and-Play Architecture**. If you want to add a new job source
 
 ---
 
-## 🖼️ 3. Design Standards (Apple "Clean-Light")
+## 🖼️ 3. Design Standards (Premium Minimalist)
 Joby Sync v2.0 uses a high-end, minimalist aesthetic. Please follow these rules for any UI changes:
 - **Spacious**: Use plenty of padding (`20px-40px`) and margins.
 - **Rounded**: Use `12px` border-radius for cards and `20px` for buttons.
-- **Apple Colors**: 
+- **Premium Colors**: 
     - Soft background: `#F5F5F7`
     - High-contrast headers: `#1D1D1F`
     - Accent Blue: `#0071E3`

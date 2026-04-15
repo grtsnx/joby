@@ -1,27 +1,27 @@
-/* Joby Sync v2.0 - Apple "Clean-Light" Style */
+/* Joby Sync v2.0 - Premium Minimalist Style */
 
 :root {
-    --apple-bg: #F5F5F7;
-    --apple-card-bg: #FFFFFF;
-    --apple-header-bg: #1D1D1F;
-    --apple-accent: #0071E3;
-    --apple-text: #1D1D1F;
-    --apple-text-secondary: #86868B;
-    --apple-radius: 12px;
-    --apple-shadow: 0 4px 12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+    --ajs-bg: #F5F5F7;
+    --ajs-card-bg: #FFFFFF;
+    --ajs-header-bg: #1D1D1F;
+    --ajs-accent: #0071E3;
+    --ajs-text: #1D1D1F;
+    --ajs-text-secondary: #86868B;
+    --ajs-radius: 12px;
+    --ajs-shadow: 0 4px 12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .ajs-admin-wrap {
     margin: 20px 20px 0 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    color: var(--apple-text);
+    font-family: BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    color: var(--ajs-text);
 }
 
 /* Header Section */
 .ajs-header {
-    background: var(--apple-header-bg);
+    background: var(--ajs-header-bg);
     padding: 30px 40px;
-    border-radius: var(--apple-radius) var(--apple-radius) 0 0;
+    border-radius: var(--ajs-radius) var(--ajs-radius) 0 0;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -43,11 +43,11 @@
 
 /* Cards */
 .ajs-card {
-    background: var(--apple-card-bg);
-    border-radius: var(--apple-radius);
+    background: var(--ajs-card-bg);
+    border-radius: var(--ajs-radius);
     padding: 30px;
     margin-bottom: 24px;
-    box-shadow: var(--apple-shadow);
+    box-shadow: var(--ajs-shadow);
     border: none;
 }
 
@@ -62,13 +62,13 @@
 
 /* Status Card */
 .status-card {
-    background: var(--apple-card-bg);
-    border-left: 4px solid var(--apple-accent);
+    background: var(--ajs-card-bg);
+    border-left: 4px solid var(--ajs-accent);
 }
 
 .status-badge {
     background: #E8F2FF;
-    color: var(--apple-accent);
+    color: var(--ajs-accent);
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 13px;
@@ -76,13 +76,13 @@
 }
 
 .status-card.idle .status-badge { background: #F2F2F2; color: #666; }
-.status-card.in_progress .status-badge { background: #E8F2FF; color: var(--apple-accent); }
+.status-card.in_progress .status-badge { background: #E8F2FF; color: var(--ajs-accent); }
 .status-card.completed .status-badge { background: #E6FAD4; color: #4A7A1B; }
 .status-card.error .status-badge { background: #FFE8E8; color: #D70000; }
 
 /* Buttons */
 .ajs-admin-wrap .button-primary {
-    background: var(--apple-accent) !important;
+    background: var(--ajs-accent) !important;
     border: none !important;
     border-radius: 20px !important;
     padding: 0 24px !important;
@@ -107,7 +107,7 @@
     width: 150px;
     padding: 20px 10px 20px 0;
     font-weight: 500;
-    color: var(--apple-text-secondary);
+    color: var(--ajs-text-secondary);
 }
 
 .regular-text {
@@ -118,7 +118,7 @@
 }
 
 .regular-text:focus {
-    border-color: var(--apple-accent) !important;
+    border-color: var(--ajs-accent) !important;
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1) !important;
 }
 
