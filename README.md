@@ -1,55 +1,70 @@
 # Joby Sync for WordPress
 
-Dynamically fetch thousands of jobs daily from a remote job board API and store them directly in your WordPress database as Custom Post Types.
+[![Release](https://img.shields.io/github/v/release/grtsnx/joby)](https://github.com/grtsnx/joby/releases)
+[![License](https://img.shields.io/github/license/grtsnx/joby)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/grtsnx/joby/release.yml)](https://github.com/grtsnx/joby/actions)
 
-## Requirements
-To use this plugin, ensure your server meets the following:
-- **PHP 7.4 or higher**
-- **WordPress 5.0 or higher**
-- **Remote API Credentials** (App ID & App Key) - Get these from the job board provider.
-- **WP-Cron** must be enabled for automatic daily syncing.
-- **cURL support** (required for `wp_remote_get`).
+**Joby Sync** is a robust, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Built for scale, it handles rate limits and server resources efficiently using a background task queue.
 
-## Key Features
-- **Global Coverage**: Sync jobs from any supported country (e.g., Nigeria, UK, US, Canada, etc.).
-- **Dynamic Fetching**: Configure target job counts per country (e.g., fetch 1,000 jobs for Nigeria and 500 for Ghana).
-- **Background Sync**: Processes jobs in small batches (50 per call) using a robust Task Queue to avoid server timeouts and respect API rate limits (250 calls/day).
-- **Auto-Cleanup**: Automatically removes "stale" jobs that are no longer available in the latest fetch, keeping your database fresh.
-- **Premium Interface**: A modern, easy-to-use admin dashboard to manage your API keys and country settings.
+---
 
-## Installation & Setup
+## 🌟 Key Features
 
-### 1. Upload & Activate
-- Upload the `joby-sync` folder to your `/wp-content/plugins/` directory.
-- Go to **Plugins** in your WordPress dashboard and click **Activate** on "Joby Sync".
-- Upon activation, you will be redirected to the settings page.
+- **🌍 Global Sync**: Connect multiple countries (NG, US, UK, etc.) in a single dashboard.
+- **⚡ Smart Queueing**: Processes jobs in batches of 50 to respect API limits and server health.
+- **🧹 Auto-Purge**: Automatically deletes expired jobs to keep your database lean.
+- **📅 Background Sync**: Fully automated daily updates powered by WP-Cron.
+- **🛠️ Flexible Config**: Admin-controlled job targets per country.
 
-### 2. Configure API Keys
-- Sign up for a free developer account at the provider's portal.
-- Copy your **App ID** and **App Key** and paste them into the plugin settings.
+---
 
-### 3. Add Countries
-- In the "Countries & Job Targets" section, add the countries you want to track.
-- Use **2-letter ISO codes** (e.g., `ng` for Nigeria, `us` for Global US, `gb` for UK).
-- Set your target job count in multiples of 50.
+## 📋 Requirements
 
-### 4. Running the Sync
-- The plugin is configured to run a full sync **Daily** using WordPress Cron.
-- You can trigger a **Manual Sync** anytime by clicking the button on the dashboard.
-- The sync runs in the background. You can check the dashboard to see progress.
+- **PHP**: 7.4+
+- **WordPress**: 5.0+
+- **System**: cURL enabled & WP-Cron active.
+- **API Credentials**: App ID and App Key from your provider.
 
-## Technical Details
-- **CPT**: `ajs_job` (Joby Jobs)
-- **Taxonomy**: `ajs_country` (Job Country)
-- **Meta Fields**: `_ajs_remote_id`, `_ajs_location`, `_ajs_company`, `_ajs_redirect_url`, `_ajs_salary_min`, `_ajs_salary_max`.
-- **API Limit**: The plugin is designed to fit 12,500 jobs (250 calls x 50 jobs) within the 24-hour limit.
+---
 
-## Support
-Developed by **Abolade Greatness** ([github.com/grtsnx](https://github.com/grtsnx)).
-For support or customization, please contact the developer via GitHub.
+## 🚀 Quick Start
 
-## License
-This project is licensed under the **GPL-2.0 License**. See the [LICENSE](LICENSE) file for details.
+### 1. Installation
+1. Download the latest **[joby-sync.zip](https://github.com/grtsnx/joby/releases/latest)**.
+2. Go to **Plugins > Add New > Upload Plugin** in your WordPress dashboard.
+3. Upload and **Activate**.
 
-## Code of Conduct
-We are committed to a welcoming and inclusive community. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+### 2. Configuration
+- Navigate to the **Joby Sync** menu.
+- Enter your **API Credentials**.
+- Add countries (e.g., `ng` for Nigeria, `us` for USA) and set your desired job counts.
+
+### 3. Execution
+- Click **Manual Sync** for an immediate pull, or let the **Daily Sync** handle it automatically.
+
+---
+
+## 🛠️ Developer Info
+
+| Type | Identifier |
+| :--- | :--- |
+| **Post Type** | `ajs_job` |
+| **Taxonomy** | `ajs_country` |
+| **API Limit** | 250 calls / 12,500 jobs daily |
+
+**Meta Fields**: 
+`_ajs_remote_id`, `_ajs_location`, `_ajs_company`, `_ajs_redirect_url`, `_ajs_salary_min`, `_ajs_salary_max`.
+
+---
+
+## 🤝 Community
+
+- **Contributing**: Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+- **Security**: Report vulnerabilities privately via the [Security Policy](SECURITY.md).
+- **Support**: Developed by **Abolade Greatness** ([@grtsnx](https://github.com/grtsnx)).
+
+---
+
+## ⚖️ License
+
+Distributed under the **GPL-2.0 License**. See `LICENSE` for more information.

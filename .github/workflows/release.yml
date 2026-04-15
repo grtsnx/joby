@@ -8,53 +8,82 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   release:
     name: Package and Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Fetch all history and tags
 
-      - name: Create Package Directory
-        run: |
-          mkdir -p build/joby-sync
-          # Copy only essential production files, excluding all development and repository metadata
-          rsync -rr . build/joby-sync \
-            --exclude '.git*' \
-            --exclude '.github' \
-            --exclude '.DS_Store' \
-            --exclude 'release.sh' \
-            --exclude 'build' \
-            --exclude 'LICENSE' \
-            --exclude 'README.md' \
-            --exclude 'CONTRIBUTING.md' \
-            --exclude 'SECURITY.md' \
-            --exclude 'CODE_OF_CONDUCT.md' \
-            --exclude '.gitignore' \
-            --exclude 'task.md'
-
-      - name: Zip Plugin
-        run: |
-          cd build
-          zip -r ../joby-sync.zip joby-sync/
-
-      - name: Generate Tag and Release Name
+      - name: Extract Plugin Version
         id: vars
         run: |
-          echo "tag=v1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+          # Extract the version number from the plugin header
+          VERSION=$(grep "Version:" joby-sync.php | awk '{print $NF}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "Detected Version: $VERSION"
+
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          TAG="v${{ steps.vars.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists. Skipping release."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Package
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # 1. Create a clean staging directory outside the build path
+          STAGING_DIR="joby-sync-staging"
+          mkdir -p $STAGING_DIR/joby-sync
+          
+          # 2. Copy essential files using a clean list
+          cp -r includes $STAGING_DIR/joby-sync/
+          cp -r assets $STAGING_DIR/joby-sync/
+          cp joby-sync.php $STAGING_DIR/joby-sync/
+          
+          # 3. Zip from the staging directory to the workspace root
+          cd $STAGING_DIR
+          zip -r ../joby-sync.zip joby-sync/
+          cd ..
+          
+          # 4. Verify the file exists and has size
+          if [ -f "joby-sync.zip" ]; then
+            echo "✅ Package created successfully: $(ls -lh joby-sync.zip)"
+          else
+            echo "❌ Failed to create package!"
+            exit 1
+          fi
+
+      - name: Verify Workspace Before Release
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          echo "Current Path: $(pwd)"
+          ls -lh joby-sync.zip
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
-          name: Release ${{ steps.vars.outputs.tag }} (${{ steps.vars.outputs.date }})
+          name: Joby ${{ steps.vars.outputs.tag }} (${{ steps.vars.outputs.date }})
           files: joby-sync.zip
           generate_release_notes: true
           body: |
             ## Automated Release
-            This release was automatically generated on a merge to the main branch.
+            This release was automatically generated because the version number in `joby-sync.php` was updated to ${{ steps.vars.outputs.version }}.
             
             ### Installation
             1. Download the `joby-sync.zip` file below.
