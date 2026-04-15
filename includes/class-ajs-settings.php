@@ -132,7 +132,10 @@ class Joby_Settings {
                         </tr>
                         <tr class="provider-field provider-adzuna" <?php echo $provider !== 'adzuna' ? 'style="display:none;"' : ''; ?>>
                             <th>App Key</th>
-                            <td><input type="password" name="ajs_app_key" value="<?php echo esc_attr( $app_key ); ?>" class="regular-text" placeholder="Your secret key"></td>
+                            <td>
+                                <input type="password" name="ajs_app_key" value="<?php echo esc_attr( $app_key ); ?>" class="regular-text" placeholder="Your secret key">
+                                <p class="description"><a href="https://developer.adzuna.com/signup" target="_blank" rel="noopener noreferrer">Get your Adzuna API keys here →</a></p>
+                            </td>
                         </tr>
                         <tr>
                             <th>Auto-Sync</th>
