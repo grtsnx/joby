@@ -21,6 +21,7 @@ define('JOBY_URL', plugin_dir_url(__FILE__));
 // Include required files
 require_once JOBY_PATH . 'includes/class-ajs-api.php';
 require_once JOBY_PATH . 'includes/class-ajs-sync-engine.php';
+require_once JOBY_PATH . 'includes/class-ajs-shortcodes.php';
 require_once JOBY_PATH . 'includes/class-ajs-settings.php';
 require_once JOBY_PATH . 'includes/class-ajs-updater.php';
 
@@ -44,6 +45,7 @@ class Joby_Sync
     {
         add_action('init', array($this, 'register_cpt'));
         add_action('admin_init', array($this, 'activation_redirect'));
+        new Joby_Shortcodes();
 
         // Initialize components
         Joby_Settings::get_instance();
