@@ -58,7 +58,10 @@ class Joby_Settings {
         $last_sync = get_option( 'ajs_last_sync_completed' );
         ?>
         <div class="wrap ajs-admin-wrap">
-            <h1>Joby Sync Settings</h1>
+            <div class="ajs-header">
+                <img src="<?php echo JOBY_URL . 'assets/icon.png'; ?>" alt="Joby Sync" class="ajs-logo">
+                <h1>Joby Sync Settings</h1>
+            </div>
             
             <div class="ajs-card status-card <?php echo esc_attr($status); ?>">
                 <h3>Sync Status: <span class="status-badge"><?php echo esc_html(ucfirst(str_replace('_', ' ', $status))); ?></span></h3>

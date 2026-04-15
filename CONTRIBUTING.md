@@ -38,6 +38,22 @@ We welcome suggestions! Please use our **Feature Request** template to describe 
 5. **Commit your changes**: `git commit -m "feat: add my new feature"`.
 6. **Push** to your fork and submit a **Pull Request** against the `main` branch.
 
+## 🏷️ Commit & Versioning Convention
+
+This project uses **Semantic Versioning** and automated releases. To ensure your changes are categorized correctly and trigger the right version bump, please prefix your pull request titles and commits using the following convention:
+
+- **`feat:`**: A new feature (triggers a **Minor** version bump, e.g., 1.0.0 -> 1.1.0)
+- **`fix:`**: A bug fix (triggers a **Patch** version bump, e.g., 1.0.0 -> 1.0.1)
+- **`docs:`**: Documentation changes
+- **`style:`**: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- **`refactor:`**: A code change that neither fixes a bug nor adds a feature
+- **`perf:`**: A code change that improves performance
+- **`test:`**: Adding missing tests or correcting existing tests
+- **`chore:`**: Changes to the build process or auxiliary tools and libraries
+
+### Breaking Changes
+If your change is a **Breaking Change**, include `BREAKING CHANGE:` in the commit body or a `!` after the type (e.g., `feat!: ...`). This will trigger a **Major** version bump (e.g., 1.0.0 -> 2.0.0).
+
 ## Coding Standards
 
 To maintain consistency and code quality, please adhere to the following:
