@@ -54,6 +54,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         const $btn = $(this);
         $btn.prop('disabled', true).text('Syncing...');
+        $('#ajs-log-console').html(''); // Clear console locally
 
         $.post(ajs_vars.ajax_url, {
             action: 'ajs_trigger_sync',
@@ -91,6 +92,7 @@ jQuery(document).ready(function($) {
         const $btn = $(this);
         const originalText = $btn.text();
         $btn.prop('disabled', true).text('Processing...');
+        $('#ajs-log-console').html(''); // Clear console locally
 
         $.post(ajs_vars.ajax_url, {
             action: 'ajs_force_batch',
@@ -175,7 +177,8 @@ jQuery(document).ready(function($) {
             if (response.success) {
                 const data = response.data;
                 updateLogConsole(data.logs);
-                updateProgress(data.queue);
+                updateProgress(data.queue_count); // Use queue_count from response
+                updateStatCards(data);
                 
                 if (data.status === 'in_progress') {
                     if (!logInterval) logInterval = setInterval(pollLogs, 3000);
@@ -243,6 +246,27 @@ jQuery(document).ready(function($) {
         else if (progress < 70) $step.text('Processing and deduping jobs...');
         else if (progress < 100) $step.text('Finalizing sync and clearing cache...');
         else $step.text('Sync completed!');
+    }
+
+    function updateStatCards(data) {
+        if (data.total_jobs !== undefined) {
+            $('#ajs-stat-total-jobs').text(data.total_jobs);
+        }
+        
+        if (data.last_sync_time) {
+            const timeAgo = formatTimeAgo(data.last_sync_time);
+            $('#ajs-stat-last-sync').text(timeAgo);
+        }
+    }
+
+    function formatTimeAgo(timestamp) {
+        const seconds = Math.floor(Date.now() / 1000 - timestamp);
+        if (seconds < 60) return seconds + 's ago';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return minutes + 'm ago';
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + 'h ago';
+        return Math.floor(hours / 24) + 'd ago';
     }
 
     $('#ajs-toggle-logs').on('click', function() {

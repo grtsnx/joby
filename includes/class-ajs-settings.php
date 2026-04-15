@@ -111,10 +111,12 @@ class Joby_Settings {
                     'Regions'    => $stats['countries'],
                     'Last Sync'  => $stats['last_sync'] ? human_time_diff($stats['last_sync'], time()) . ' ago' : 'Never'
                 );
-                foreach ($cards as $label => $val) : ?>
+                foreach ($cards as $label => $val) : 
+                    $slug = strtolower(str_replace(' ', '-', $label));
+                ?>
                     <div class="ajs-stat-card">
                         <span class="ajs-stat-label"><?php echo esc_html($label); ?></span>
-                        <span class="ajs-stat-value"><?php echo esc_html($val); ?></span>
+                        <span class="ajs-stat-value" id="ajs-stat-<?php echo esc_attr($slug); ?>"><?php echo esc_html($val); ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -378,6 +380,7 @@ class Joby_Settings {
             'status'           => get_option( 'ajs_sync_status', 'idle' ),
             'queue_count'      => count( get_option( 'ajs_sync_queue', array() ) ),
             'current_sync_id'  => get_option( 'ajs_current_sync_id' ),
+            'total_jobs'       => wp_count_posts( 'ajs_job' )->publish,
             'last_sync_time'   => get_option( 'ajs_last_sync_completed' ),
             'last_error'       => get_option( 'ajs_last_sync_error' ),
             'config_countries' => get_option( 'ajs_countries' ),

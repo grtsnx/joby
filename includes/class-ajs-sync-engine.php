@@ -24,6 +24,7 @@ class Joby_Sync_Engine {
 
     public function start_sync() {
         $countries = get_option( 'ajs_countries', array() );
+        delete_site_transient( 'ajs_sync_logs' );
         $queue = array();
         $cycle_id = time();
         update_option( 'ajs_last_sync_start', $cycle_id );
@@ -44,7 +45,6 @@ class Joby_Sync_Engine {
         foreach ( $countries as $country ) {
             // Validation: Skip if not supported by current provider (except Arbeitnow which is global)
             if ( $provider_slug !== 'arbeitnow' && ! in_array( $country['code'], $supported ) ) {
-                $this->log_activity('⚠️ Skipped ' . $country['name'] . ' (' . $country['code'] . '): Not supported by ' . $provider->get_name());
                 continue;
             }
 
