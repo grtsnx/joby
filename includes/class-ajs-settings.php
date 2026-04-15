@@ -15,6 +15,7 @@ class Joby_Settings {
 
     private function __construct() {
         add_action( 'admin_menu', array( $this, 'add_menu' ) );
+        add_action( 'wp_ajax_ajs_purge_jobs', array( $this, 'handle_purge_jobs' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_head', array( $this, 'fix_menu_icon_size' ) );
@@ -101,6 +102,8 @@ class Joby_Settings {
                 <a href="<?php echo admin_url('edit.php?post_type=ajs_job'); ?>" class="button button-primary">View Synced Jobs</a>
                 <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
                 <button type="button" id="ajs-clear-cache" class="button button-secondary">Clear Cache</button>
+                <button type="button" id="ajs-how-to-use" class="button button-secondary" style="background: #e7f1ff; color: #0073aa; border-color: #0073aa;">📖 How to Use</button>
+                <button type="button" id="ajs-purge-jobs" class="button button-secondary" style="color: #D70000; border-color: #D70000;">Purge All Jobs</button>
             </div>
             
             <div class="ajs-dashboard-grid">
@@ -111,10 +114,12 @@ class Joby_Settings {
                     'Regions'    => $stats['countries'],
                     'Last Sync'  => $stats['last_sync'] ? human_time_diff($stats['last_sync'], time()) . ' ago' : 'Never'
                 );
-                foreach ($cards as $label => $val) : ?>
+                foreach ($cards as $label => $val) : 
+                    $slug = strtolower(str_replace(' ', '-', $label));
+                ?>
                     <div class="ajs-stat-card">
                         <span class="ajs-stat-label"><?php echo esc_html($label); ?></span>
-                        <span class="ajs-stat-value"><?php echo esc_html($val); ?></span>
+                        <span class="ajs-stat-value" id="ajs-stat-<?php echo esc_attr($slug); ?>"><?php echo esc_html($val); ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -312,6 +317,60 @@ class Joby_Settings {
             </div>
         </div>
 
+        <!-- How to Use Modal -->
+        <div id="ajs-guide-modal" class="ajs-modal" style="display:none;">
+            <div class="ajs-modal-content">
+                <div class="ajs-modal-header">
+                    <h2>📖 Developer Guide: Using Joby Jobs</h2>
+                    <span class="ajs-close-modal">&times;</span>
+                </div>
+                <div class="ajs-modal-body">
+                    <section>
+                        <h3>1. Querying Jobs in Templates</h3>
+                        <p>Use the following snippet in your theme files (e.g., <code>archive.php</code> or <code>single-ajs_job.php</code>):</p>
+                        <pre><code>$args = array(
+    'post_type' => 'ajs_job',
+    'posts_per_page' => 10,
+    'tax_query' => array(
+        array(
+            'taxonomy' => 'ajs_country',
+            'field'    => 'slug',
+            'terms'    => 'us', // Slug of the country
+        ),
+    ),
+);
+$query = new WP_Query($args);</code></pre>
+                    </section>
+
+                    <section>
+                        <h3>2. Displaying Metadata</h3>
+                        <p>Available Post Meta keys for each job:</p>
+                        <table class="ajs-guide-table">
+                            <thead>
+                                <tr><th>Feature</th><th>Meta Key</th><th>Description</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>🏢 Company</td><td><code>_ajs_company</code></td><td>Name of the hiring company</td></tr>
+                                <tr><td>📍 Location</td><td><code>_ajs_location_name</code></td><td>City/State description</td></tr>
+                                <tr><td>💰 Salary</td><td><code>_ajs_salary</code></td><td>Formatted salary string</td></tr>
+                                <tr><td>🔗 Apply URL</td><td><code>_ajs_apply_url</code></td><td>Direct link to the job ad</td></tr>
+                                <tr><td>🆔 Remote ID</td><td><code>_ajs_remote_id</code></td><td>Unique ID from the provider</td></tr>
+                                <tr><td>🤖 Provider</td><td><code>_ajs_provider</code></td><td>Origin (e.g., adzuna)</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h3>3. Displaying Job Details</h3>
+                        <pre><code>&lt;h2&gt;&lt;?php the_title(); ?&gt;&lt;/h2&gt;
+&lt;p&gt;Company: &lt;?php echo get_post_meta(get_the_ID(), '_ajs_company', true); ?&gt;&lt;/p&gt;
+&lt;p&gt;Location: &lt;?php echo get_post_meta(get_the_ID(), '_ajs_location_name', true); ?&gt;&lt;/p&gt;
+&lt;a href="&lt;?php echo get_post_meta(get_the_ID(), '_ajs_apply_url', true); ?&gt;" target="_blank"&gt;Apply Now&lt;/a&gt;</code></pre>
+                    </section>
+                </div>
+            </div>
+        </div>
+
         <script id="ajs-row-template" type="text/template">
             <tr>
                 <td>
@@ -366,6 +425,14 @@ class Joby_Settings {
         wp_send_json_success( 'Update check complete. Please refresh the page or check the Plugins menu.' );
     }
 
+    public function handle_purge_jobs() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        Joby_Sync_Engine::purge_all_jobs();
+        wp_send_json_success( 'All jobs purged successfully.' );
+    }
+
     public function handle_get_logs() {
         check_ajax_referer( 'ajs_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
@@ -378,6 +445,7 @@ class Joby_Settings {
             'status'           => get_option( 'ajs_sync_status', 'idle' ),
             'queue_count'      => count( get_option( 'ajs_sync_queue', array() ) ),
             'current_sync_id'  => get_option( 'ajs_current_sync_id' ),
+            'total_jobs'       => wp_count_posts( 'ajs_job' )->publish,
             'last_sync_time'   => get_option( 'ajs_last_sync_completed' ),
             'last_error'       => get_option( 'ajs_last_sync_error' ),
             'config_countries' => get_option( 'ajs_countries' ),

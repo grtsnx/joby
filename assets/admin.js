@@ -54,6 +54,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         const $btn = $(this);
         $btn.prop('disabled', true).text('Syncing...');
+        $('#ajs-log-console').html(''); // Clear console locally
 
         $.post(ajs_vars.ajax_url, {
             action: 'ajs_trigger_sync',
@@ -91,6 +92,7 @@ jQuery(document).ready(function($) {
         const $btn = $(this);
         const originalText = $btn.text();
         $btn.prop('disabled', true).text('Processing...');
+        $('#ajs-log-console').html(''); // Clear console locally
 
         $.post(ajs_vars.ajax_url, {
             action: 'ajs_force_batch',
@@ -148,6 +150,28 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Purge All Jobs
+    $('#ajs-purge-jobs').on('click', function(e) {
+        e.preventDefault();
+        if (!confirm('🛑 WARNING: This will permanently delete ALL synced jobs from your database. This cannot be undone. Are you sure?')) return;
+        
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Purging...');
+
+        $.post(ajs_vars.ajax_url, {
+            action: 'ajs_purge_jobs',
+            nonce: ajs_vars.nonce
+        }, function(response) {
+            $btn.prop('disabled', false).text('Purge All Jobs');
+            if (response.success) {
+                showToast(response.data, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Error: ' + response.data, 'error');
+            }
+        });
+    });
+
     // Dynamic Row Handling for Countries
     $('#ajs-add-country').on('click', function() {
         const index = $('#ajs-countries-table tbody tr').not('.empty-row').length;
@@ -175,7 +199,8 @@ jQuery(document).ready(function($) {
             if (response.success) {
                 const data = response.data;
                 updateLogConsole(data.logs);
-                updateProgress(data.queue);
+                updateProgress(data.queue_count); // Use queue_count from response
+                updateStatCards(data);
                 
                 if (data.status === 'in_progress') {
                     if (!logInterval) logInterval = setInterval(pollLogs, 3000);
@@ -244,6 +269,41 @@ jQuery(document).ready(function($) {
         else if (progress < 100) $step.text('Finalizing sync and clearing cache...');
         else $step.text('Sync completed!');
     }
+
+    function updateStatCards(data) {
+        if (data.total_jobs !== undefined) {
+            $('#ajs-stat-total-jobs').text(data.total_jobs);
+        }
+        
+        if (data.last_sync_time) {
+            const timeAgo = formatTimeAgo(data.last_sync_time);
+            $('#ajs-stat-last-sync').text(timeAgo);
+        }
+    }
+
+    function formatTimeAgo(timestamp) {
+        const seconds = Math.floor(Date.now() / 1000 - timestamp);
+        if (seconds < 60) return seconds + 's ago';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return minutes + 'm ago';
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + 'h ago';
+        return Math.floor(hours / 24) + 'd ago';
+    }
+
+    // How to Use Modal
+    $('#ajs-how-to-use').on('click', function() {
+        $('#ajs-guide-modal').fadeIn(200);
+    });
+
+    $('.ajs-close-modal, #ajs-guide-modal').on('click', function(e) {
+        if (e.target !== this && !$(e.target).hasClass('ajs-close-modal')) return;
+        $('#ajs-guide-modal').fadeOut(200);
+    });
+
+    $(document).on('keydown', function(e) {
+        if (e.key === "Escape") $('#ajs-guide-modal').fadeOut(200);
+    });
 
     $('#ajs-toggle-logs').on('click', function() {
         const $console = $('#ajs-log-console');
