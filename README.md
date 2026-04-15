@@ -1,10 +1,10 @@
-# <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync v2.0
+# <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync
 
-**The v2.0 Overhaul** — A premium, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Refined for speed, beauty, and global availability.
+**Premium Overhaul** — A premium, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Refined for speed, beauty, and global availability.
 
 ---
 
-## 🌟 What's New in v2.0?
+## 🌟 What's New?
 
 - **✨ Premium UI**: A pure minimalist, "Clean-Light" design with a premium dark header.
 - **🌍 Multi-Provider Engine**: Support for **Adzuna** (US/UK/EU) and **Arbeitnow** (Global Remote).
