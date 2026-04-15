@@ -94,7 +94,7 @@ class Joby_Settings {
                 <?php if ( $status === 'in_progress' ) : ?>
                     <p>Tasks remaining: <strong><?php echo count($queue); ?></strong></p>
                     <div class="ajs-progress-container" style="background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin: 10px 0;">
-                        <div class="ajs-progress-bar" style="width: 0%; height: 100%; background: var(--apple-accent); transition: width 0.3s ease;"></div>
+                        <div class="ajs-progress-bar" style="width: 0%; height: 100%; background: var(--ajs-accent); transition: width 0.3s ease;"></div>
                     </div>
                 <?php else : ?>
                     <p>Last completed: <strong><?php echo $last_sync ? date('Y-m-d H:i:s', $last_sync) : 'Never'; ?></strong></p>

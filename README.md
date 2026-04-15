@@ -1,12 +1,12 @@
 # <img src="assets/icon.png" width="80" height="80" align="center"> Joby Sync v2.0
 
-**The "Apple" Update 🍏** — A premium, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Refined for speed, beauty, and global availability.
+**The v2.0 Overhaul** — A premium, high-performance WordPress plugin designed to dynamically fetch and sync thousands of remote jobs directly into your database. Refined for speed, beauty, and global availability.
 
 ---
 
 ## 🌟 What's New in v2.0?
 
-- **🍏 Apple-Style UI**: A pure minimalist, "Clean-Light" design with a premium dark header.
+- **✨ Premium UI**: A pure minimalist, "Clean-Light" design with a premium dark header.
 - **🌍 Multi-Provider Engine**: Support for **Adzuna** (US/UK/EU) and **Arbeitnow** (Global Remote).
 - **🇳🇬 Nigeria Ready**: **Arbeitnow** integration provides instant access to global remote jobs for the Nigerian market with **zero-configuration**.
 - **⚡ Automated Workflow**: New "Auto-Sync on Save" checkbox for hands-off updates.
