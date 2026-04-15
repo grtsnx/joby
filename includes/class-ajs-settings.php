@@ -50,13 +50,14 @@ class Joby_Settings {
         $all_providers = Joby_API::get_all_providers();
         $compatibility = array();
         foreach ( $all_providers as $slug => $obj ) {
-            $compatibility[ $slug ] = array_keys( $obj->get_supported_countries() );
+            $compatibility[ $slug ] = $obj->get_supported_countries();
         }
 
         wp_localize_script( 'ajs-admin-js', 'ajs_vars', array(
             'ajax_url'      => admin_url( 'admin-ajax.php' ),
             'nonce'         => wp_create_nonce( 'ajs_nonce' ),
-            'compatibility' => $compatibility
+            'compatibility' => $compatibility,
+            'all_countries' => Joby_Helper::get_all_countries()
         ) );
     }
 

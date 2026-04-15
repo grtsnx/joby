@@ -9,9 +9,7 @@ class Joby_Provider_Arbeitnow implements Joby_Provider_Interface {
     public function has_credentials() { return false; }
 
     public function get_supported_countries() {
-        return array(
-            'global' => 'Global (Remote)'
-        );
+        return Joby_Helper::get_all_countries();
     }
 
     public function fetch_jobs($country, $count, $page = 1) {

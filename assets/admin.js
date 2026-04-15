@@ -11,15 +11,39 @@ jQuery(document).ready(function($) {
         }, 3000);
     }
 
+    // Helper to rebuild select options based on provider
+    function rebuildCountrySelectors(provider) {
+        const supported = ajs_vars.compatibility[provider] || {};
+        const $selectors = $('.ajs-country-selector');
+
+        $selectors.each(function() {
+            const $select = $(this);
+            const currentValue = $select.val();
+            
+            // Clear and rebuild
+            $select.empty();
+            
+            // For Adzuna, we only show supported keys
+            // For Arbeitnow, we show everything from all_countries
+            const countriesToShow = (provider === 'arbeitnow') ? ajs_vars.all_countries : supported;
+
+            Object.entries(countriesToShow).forEach(([code, name]) => {
+                const isSelected = (code === currentValue) ? 'selected' : '';
+                $select.append(`<option value="${code}" ${isSelected}>${name}</option>`);
+            });
+        });
+    }
+
     // Provider Compatibility Checking
     function checkCompatibility() {
         const provider = $('#ajs_provider_select').val();
-        const supported = ajs_vars.compatibility[provider] || [];
+        const supportedKeys = Object.keys(ajs_vars.compatibility[provider] || {});
         let hasMismatch = false;
 
-        $('.ajs-country-select').each(function() {
+        $('.ajs-country-selector').each(function() {
             const countryCode = $(this).val();
-            if (provider !== 'arbeitnow' && !supported.includes(countryCode)) {
+            // In Arbeitnow, everything is supported. In others, check the list.
+            if (provider !== 'arbeitnow' && !supportedKeys.includes(countryCode)) {
                 $(this).css('border-color', '#ff3b30');
                 hasMismatch = true;
             } else {
@@ -41,9 +65,12 @@ jQuery(document).ready(function($) {
         $('.provider-field').hide();
         $('.provider-' + selected).fadeIn();
         
+        // Rebuild country selectors to match provider capabilities
+        rebuildCountrySelectors(selected);
+
         // Show a helpful tip for Arbeitnow
         if (selected === 'arbeitnow') {
-            showToast('Arbeitnow selected: Public API (no keys needed)', 'success');
+            showToast('Arbeitnow selected: Loading 240+ Global countries', 'success');
         }
 
         checkCompatibility();
@@ -178,7 +205,11 @@ jQuery(document).ready(function($) {
         const template = $('#ajs-row-template').html().replace(/{{index}}/g, index);
         
         $('#ajs-countries-table tbody').find('.empty-row').remove();
-        $('#ajs-countries-table tbody').append(template);
+        const $newRow = $(template);
+        $('#ajs-countries-table tbody').append($newRow);
+
+        // Ensure the new row's selector matches the current provider
+        rebuildCountrySelectors($('#ajs_provider_select').val());
     });
 
     $('#ajs-countries-table').on('click', '.ajs-remove-row', function() {

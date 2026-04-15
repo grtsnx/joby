@@ -20,6 +20,7 @@ define('JOBY_URL', plugin_dir_url(__FILE__));
 
 // Include required files
 require_once JOBY_PATH . 'includes/class-ajs-api.php';
+require_once JOBY_PATH . 'includes/class-ajs-helper.php';
 require_once JOBY_PATH . 'includes/class-ajs-sync-engine.php';
 require_once JOBY_PATH . 'includes/class-ajs-shortcodes.php';
 require_once JOBY_PATH . 'includes/class-ajs-settings.php';
