@@ -28,16 +28,23 @@ class Joby_Provider_Arbeitnow implements Joby_Provider_Interface {
         $results = array_slice($body->data, 0, $count);
 
         $jobs = array();
+        $jobs = array();
         foreach ($results as $result) {
+            // Mapping Arbeitnow data to our professional taxonomies
+            $nature = !empty($result->job_types) ? $result->job_types[0] : 'Remote';
+            $category = !empty($result->tags) ? $result->tags[0] : 'General';
+
             $jobs[] = array(
                 'id'          => md5($result->slug),
                 'title'       => $result->title,
-                'description' => $result->description,
+                'description' => $result->description, // Full HTML provided by Arbeitnow!
                 'company'     => $result->company_name,
                 'location'    => $result->location,
                 'url'         => $result->url,
-                'type'        => 'Remote',
-                'salary'      => '',
+                'type'        => $nature,
+                'category'    => $category,
+                'salary'      => '', // Arbeitnow rarely provides numeric salary in a separate field
+                'provider'    => 'arbeitnow'
             );
         }
 
