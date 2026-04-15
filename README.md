@@ -45,4 +45,11 @@ To use this plugin, ensure your server meets the following:
 - **API Limit**: The plugin is designed to fit 12,500 jobs (250 calls x 50 jobs) within the 24-hour limit.
 
 ## Support
-For support or customization, please contact the developer.
+Developed by **Abolade Greatness** ([github.com/grtsnx](https://github.com/grtsnx)).
+For support or customization, please contact the developer via GitHub.
+
+## License
+This project is licensed under the **GPL-2.0 License**. See the [LICENSE](LICENSE) file for details.
+
+## Code of Conduct
+We are committed to a welcoming and inclusive community. Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
