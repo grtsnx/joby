@@ -20,6 +20,7 @@ class Joby_Settings {
         add_action( 'admin_head', array( $this, 'fix_menu_icon_size' ) );
         add_action( 'wp_ajax_ajs_trigger_sync', array( $this, 'handle_trigger_sync' ) );
         add_action( 'wp_ajax_ajs_cancel_sync', array( $this, 'handle_cancel_sync' ) );
+        add_action( 'wp_ajax_ajs_check_updates', array( $this, 'handle_check_updates' ) );
     }
 
     public function add_menu() {
@@ -63,6 +64,7 @@ class Joby_Settings {
     public function render_page() {
         // Clear update cache on settings page load so user sees latest version
         delete_site_transient( 'joby_update_check' );
+        delete_site_transient( 'update_plugins' ); // Force WP to re-scan for updates
         
         $provider    = get_option( 'ajs_provider', 'adzuna' );
         $app_id      = get_option( 'ajs_app_id' );
@@ -82,8 +84,9 @@ class Joby_Settings {
                 <h1>Joby Sync Settings</h1>
             </div>
 
-            <div class="ajs-actions" style="margin-top: 20px;">
+            <div class="ajs-actions" style="margin-top: 20px; display: flex; gap: 10px;">
                 <a href="<?php echo admin_url('edit.php?post_type=ajs_job'); ?>" class="button button-primary">View Synced Jobs</a>
+                <button type="button" id="ajs-check-updates" class="button button-secondary">Check for Updates</button>
             </div>
             
             <div class="ajs-card status-card <?php echo esc_attr($status); ?>">
@@ -233,6 +236,21 @@ class Joby_Settings {
         update_option('ajs_last_sync_error', 'Sync cancelled by user.');
         
         wp_send_json_success( 'Sync cancelled' );
+    }
+
+    public function handle_check_updates() {
+        check_ajax_referer( 'ajs_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        delete_site_transient( 'joby_update_check' );
+        delete_site_transient( 'update_plugins' );
+        
+        // Trigger WP to re-scan for updates immediately
+        if (function_exists('wp_update_plugins')) {
+            wp_update_plugins();
+        }
+        
+        wp_send_json_success( 'Update check complete. Please refresh the page or check the Plugins menu.' );
     }
 
     public function fix_menu_icon_size() {
